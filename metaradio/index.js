@@ -35,11 +35,13 @@ ControllerMetaradio.prototype.onStart = function() {
 	var defer=libQ.defer();
 
 	self.addToBrowseSources();
+	self.addRadioResource();
+	self.serviceName = "metaradio";
 
 	// Once the Plugin has successfull started resolve the promise
 	defer.resolve();
 
-    return defer.promise;
+  return defer.promise;
 };
 
 ControllerMetaradio.prototype.onStop = function() {
@@ -120,6 +122,9 @@ ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
 
     //self.commandRouter.logger.info(curUri);
     var response;
+		if (curUri.startsWith('metadata')) {
+			response = self.getRadioContent();
+		}
 
 
     return response;
@@ -265,4 +270,33 @@ ControllerMetaradio.prototype.goto=function(data){
 // Handle go to artist and go to album function
 
      return defer.promise;
+};
+
+ControllerMetaradio.prototype.addRadioResource = function() {
+	var self = this;
+	var radioResource = fs.readJsonSync(__dirname+'/radio_stations.json');
+	var baseNavigation = radioResource.baseNavigation;
+
+	self.radioStations = radioResource.stations;
+	self.rootNavigation = JSON.parse(JSON.stringify(baseNavigation));
+}
+
+ControllerMetaradio.prototype.getRootContent = function() {
+  var self=this;
+  var response;
+
+  response = self.rootNavigation;
+  response.navigation.lists[0].items = [];
+  for (var key in self.radioStations) {
+      var radio = {
+        service: self.serviceName,
+        type: 'song',
+        title: self.radioStations[key].title,
+        uri: self.radioStations[key].uri,
+        albumart: '/albumart?sourceicon=music_service/personal_radio/logos/'+key+'.png'
+      };
+      response.navigation.lists[0].items.push(radio);
+  }
+
+  return libQ.resolve(response);
 };
