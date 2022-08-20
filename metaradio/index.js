@@ -34,6 +34,7 @@ ControllerMetaradio.prototype.onStart = function() {
     var self = this;
 	var defer=libQ.defer();
 
+	self.addToBrowseSources();
 
 	// Once the Plugin has successfull started resolve the promise
 	defer.resolve();
