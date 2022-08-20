@@ -7,8 +7,8 @@ var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 
 
-module.exports = metaradio;
-function metaradio(context) {
+module.exports = ControllerMetaradio;
+function ControllerMetaradio(context) {
 	var self = this;
 
 	this.context = context;
@@ -20,7 +20,7 @@ function metaradio(context) {
 
 
 
-metaradio.prototype.onVolumioStart = function()
+ControllerMetaradio.prototype.onVolumioStart = function()
 {
 	var self = this;
 	var configFile=this.commandRouter.pluginManager.getConfigurationFile(this.context,'config.json');
@@ -30,7 +30,7 @@ metaradio.prototype.onVolumioStart = function()
     return libQ.resolve();
 }
 
-metaradio.prototype.onStart = function() {
+ControllerMetaradio.prototype.onStart = function() {
     var self = this;
 	var defer=libQ.defer();
 
@@ -41,7 +41,7 @@ metaradio.prototype.onStart = function() {
     return defer.promise;
 };
 
-metaradio.prototype.onStop = function() {
+ControllerMetaradio.prototype.onStop = function() {
     var self = this;
     var defer=libQ.defer();
 
@@ -51,7 +51,7 @@ metaradio.prototype.onStop = function() {
     return libQ.resolve();
 };
 
-metaradio.prototype.onRestart = function() {
+ControllerMetaradio.prototype.onRestart = function() {
     var self = this;
     // Optional, use if you need it
 };
@@ -59,7 +59,7 @@ metaradio.prototype.onRestart = function() {
 
 // Configuration Methods -----------------------------------------------------------------------------
 
-metaradio.prototype.getUIConfig = function() {
+ControllerMetaradio.prototype.getUIConfig = function() {
     var defer = libQ.defer();
     var self = this;
 
@@ -82,21 +82,21 @@ metaradio.prototype.getUIConfig = function() {
     return defer.promise;
 };
 
-metaradio.prototype.getConfigurationFiles = function() {
+ControllerMetaradio.prototype.getConfigurationFiles = function() {
 	return ['config.json'];
 }
 
-metaradio.prototype.setUIConfig = function(data) {
+ControllerMetaradio.prototype.setUIConfig = function(data) {
 	var self = this;
 	//Perform your installation tasks here
 };
 
-metaradio.prototype.getConf = function(varName) {
+ControllerMetaradio.prototype.getConf = function(varName) {
 	var self = this;
 	//Perform your installation tasks here
 };
 
-metaradio.prototype.setConf = function(varName, varValue) {
+ControllerMetaradio.prototype.setConf = function(varName, varValue) {
 	var self = this;
 	//Perform your installation tasks here
 };
@@ -107,14 +107,14 @@ metaradio.prototype.setConf = function(varName, varValue) {
 // If your plugin is not a music_sevice don't use this part and delete it
 
 
-metaradio.prototype.addToBrowseSources = function () {
+ControllerMetaradio.prototype.addToBrowseSources = function () {
 
 	// Use this function to add your music service plugin to music sources
-    //var data = {name: 'Spotify', uri: 'spotify',plugin_type:'music_service',plugin_name:'spop'};
+    var data = {name: 'Metaradio', uri: 'metaradio',plugin_type:'music_service',plugin_name:'metaradio'};
     this.commandRouter.volumioAddToBrowseSources(data);
 };
 
-metaradio.prototype.handleBrowseUri = function (curUri) {
+ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
     var self = this;
 
     //self.commandRouter.logger.info(curUri);
@@ -127,7 +127,7 @@ metaradio.prototype.handleBrowseUri = function (curUri) {
 
 
 // Define a method to clear, add, and play an array of tracks
-metaradio.prototype.clearAddPlayTrack = function(track) {
+ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 	var self = this;
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::clearAddPlayTrack');
 
@@ -136,14 +136,14 @@ metaradio.prototype.clearAddPlayTrack = function(track) {
 	return self.sendSpopCommand('uplay', [track.uri]);
 };
 
-metaradio.prototype.seek = function (timepos) {
+ControllerMetaradio.prototype.seek = function (timepos) {
     this.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::seek to ' + timepos);
 
     return this.sendSpopCommand('seek '+timepos, []);
 };
 
 // Stop
-metaradio.prototype.stop = function() {
+ControllerMetaradio.prototype.stop = function() {
 	var self = this;
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::stop');
 
@@ -151,7 +151,7 @@ metaradio.prototype.stop = function() {
 };
 
 // Spop pause
-metaradio.prototype.pause = function() {
+ControllerMetaradio.prototype.pause = function() {
 	var self = this;
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::pause');
 
@@ -159,7 +159,7 @@ metaradio.prototype.pause = function() {
 };
 
 // Get state
-metaradio.prototype.getState = function() {
+ControllerMetaradio.prototype.getState = function() {
 	var self = this;
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::getState');
 
@@ -167,7 +167,7 @@ metaradio.prototype.getState = function() {
 };
 
 //Parse state
-metaradio.prototype.parseState = function(sState) {
+ControllerMetaradio.prototype.parseState = function(sState) {
 	var self = this;
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::parseState');
 
@@ -175,7 +175,7 @@ metaradio.prototype.parseState = function(sState) {
 };
 
 // Announce updated State
-metaradio.prototype.pushState = function(state) {
+ControllerMetaradio.prototype.pushState = function(state) {
 	var self = this;
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::pushState');
 
@@ -183,7 +183,7 @@ metaradio.prototype.pushState = function(state) {
 };
 
 
-metaradio.prototype.explodeUri = function(uri) {
+ControllerMetaradio.prototype.explodeUri = function(uri) {
 	var self = this;
 	var defer=libQ.defer();
 
@@ -192,7 +192,7 @@ metaradio.prototype.explodeUri = function(uri) {
 	return defer.promise;
 };
 
-metaradio.prototype.getAlbumArt = function (data, path) {
+ControllerMetaradio.prototype.getAlbumArt = function (data, path) {
 
 	var artist, album;
 
@@ -231,7 +231,7 @@ metaradio.prototype.getAlbumArt = function (data, path) {
 
 
 
-metaradio.prototype.search = function (query) {
+ControllerMetaradio.prototype.search = function (query) {
 	var self=this;
 	var defer=libQ.defer();
 
@@ -240,24 +240,24 @@ metaradio.prototype.search = function (query) {
 	return defer.promise;
 };
 
-metaradio.prototype._searchArtists = function (results) {
+ControllerMetaradio.prototype._searchArtists = function (results) {
 
 };
 
-metaradio.prototype._searchAlbums = function (results) {
+ControllerMetaradio.prototype._searchAlbums = function (results) {
 
 };
 
-metaradio.prototype._searchPlaylists = function (results) {
+ControllerMetaradio.prototype._searchPlaylists = function (results) {
 
 
 };
 
-metaradio.prototype._searchTracks = function (results) {
+ControllerMetaradio.prototype._searchTracks = function (results) {
 
 };
 
-metaradio.prototype.goto=function(data){
+ControllerMetaradio.prototype.goto=function(data){
     var self=this
     var defer=libQ.defer()
 
