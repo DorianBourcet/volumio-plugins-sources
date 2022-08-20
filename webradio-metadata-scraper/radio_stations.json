@@ -1,0 +1,25 @@
+{
+  "baseNavigation": {
+    "navigation": {
+      "lists": [
+        {
+          "availableListViews": [
+            "list"
+          ],
+          "items": [
+          ]
+        }
+      ]
+    }
+  },
+
+  "stations": [
+    {
+      "title": "FIP (AAC 192k)",
+      "uri": "webfip/0",
+      "url": "http://direct.fipradio.fr/live/fip-hifi.aac",
+      "cover":"/albumart?sourceicon=music_service/80s80s/images/80s80s-cover.png",
+      "api": "https://www.radiofrance.fr/api/v1.7/stations/fip/live"
+    }
+  ]
+}
