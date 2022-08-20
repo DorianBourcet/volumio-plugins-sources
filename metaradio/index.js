@@ -67,6 +67,7 @@ ControllerMetaradio.prototype.getUIConfig = function() {
     var self = this;
 
     var lang_code = this.commandRouter.sharedVars.get('language_code');
+		console.log('WOW language is '+lang_code);
 
     self.commandRouter.i18nJson(__dirname+'/i18n/strings_'+lang_code+'.json',
         __dirname+'/i18n/strings_en.json',
