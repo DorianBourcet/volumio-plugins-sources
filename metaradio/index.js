@@ -11,10 +11,10 @@ module.exports = ControllerMetaradio;
 function ControllerMetaradio(context) {
 	var self = this;
 
-	this.context = context;
-	this.commandRouter = this.context.coreCommand;
-	this.logger = this.context.logger;
-	this.configManager = this.context.configManager;
+	self.context = context;
+	self.commandRouter = this.context.coreCommand;
+	self.logger = this.context.logger;
+	self.configManager = this.context.configManager;
 
 }
 
@@ -24,8 +24,8 @@ ControllerMetaradio.prototype.onVolumioStart = function()
 {
 	var self = this;
 	var configFile=this.commandRouter.pluginManager.getConfigurationFile(this.context,'config.json');
-	this.config = new (require('v-conf'))();
-	this.config.loadFile(configFile);
+	self.config = new (require('v-conf'))();
+	self.config.loadFile(configFile);
 
     return libQ.resolve();
 }
@@ -123,10 +123,11 @@ ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
 
     //self.commandRouter.logger.info(curUri);
     var response;
-		if (curUri.startsWith('metadata')) {
+		if (curUri.startsWith('metaradio')) {
 			response = self.getRadioContent();
+			self.logger.info('IN METADATA');
 		}
-
+		self.logger.error(response);
 
     return response;
 };
@@ -282,7 +283,7 @@ ControllerMetaradio.prototype.addRadioResource = function() {
 	self.rootNavigation = JSON.parse(JSON.stringify(baseNavigation));
 }
 
-ControllerMetaradio.prototype.getRootContent = function() {
+ControllerMetaradio.prototype.getRadioContent = function() {
   var self=this;
   var response;
 
