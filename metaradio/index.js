@@ -15,7 +15,8 @@ function ControllerMetaradio(context) {
 	self.commandRouter = this.context.coreCommand;
 	self.logger = this.context.logger;
 	self.configManager = this.context.configManager;
-
+	self.name = 'Metaradio';
+	self.serviceName = 'metaradio';
 }
 
 
@@ -23,20 +24,22 @@ function ControllerMetaradio(context) {
 ControllerMetaradio.prototype.onVolumioStart = function()
 {
 	var self = this;
-	var configFile=this.commandRouter.pluginManager.getConfigurationFile(this.context,'config.json');
+	var configFile = this.commandRouter.pluginManager.getConfigurationFile(this.context,'config.json');
+
 	self.config = new (require('v-conf'))();
 	self.config.loadFile(configFile);
 
-    return libQ.resolve();
+  return libQ.resolve();
 }
 
 ControllerMetaradio.prototype.onStart = function() {
-    var self = this;
+  var self = this;
 	var defer=libQ.defer();
+
+	self.mpdPlugin = this.commandRouter.pluginManager.getPlugin('music_service','mpd');
 
 	self.addToBrowseSources();
 	self.addRadioResource();
-	self.serviceName = "metaradio";
 
 	// Once the Plugin has successfull started resolve the promise
 	defer.resolve();
@@ -114,22 +117,25 @@ ControllerMetaradio.prototype.setConf = function(varName, varValue) {
 ControllerMetaradio.prototype.addToBrowseSources = function () {
 
 	// Use this function to add your music service plugin to music sources
-    var data = {name: 'Metaradio', uri: 'metaradio',plugin_type:'music_service',plugin_name:'metaradio'};
-    this.commandRouter.volumioAddToBrowseSources(data);
+	var self = this;
+  var data = {name: self.name, uri: self.serviceName, plugin_type: 'music_service', plugin_name: self.serviceName};
+
+  this.commandRouter.volumioAddToBrowseSources(data);
 };
 
 ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
     var self = this;
-
-    //self.commandRouter.logger.info(curUri);
     var response;
-		if (curUri.startsWith('metaradio')) {
-			response = self.getRadioContent();
-			self.logger.info('IN METADATA');
-		}
-		self.logger.error(response);
 
-    return response;
+		if (curUri.startsWith(self.serviceName)) {
+			response = self.getRadioContent();
+		}
+
+    return response
+			.fail(function (e) {
+				self.logger.info('[' + Date.now() + '] ' + '[RadioParadise] handleBrowseUri failed');
+				libQ.reject(new Error());
+		});
 };
 
 
@@ -187,7 +193,7 @@ ControllerMetaradio.prototype.pushState = function(state) {
 	var self = this;
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::pushState');
 
-	return self.commandRouter.servicePushState(state, self.servicename);
+	return self.commandRouter.servicePushState(state, self.serviceName);
 };
 
 
@@ -289,13 +295,13 @@ ControllerMetaradio.prototype.getRadioContent = function() {
 
   response = self.rootNavigation;
   response.navigation.lists[0].items = [];
-  for (var key in self.radioStations) {
+  for (var station of self.radioStations) {
       var radio = {
         service: self.serviceName,
         type: 'song',
-        title: self.radioStations[key].title,
-        uri: self.radioStations[key].uri,
-        albumart: '/albumart?sourceicon=music_service/personal_radio/logos/'+key+'.png'
+        title: station.title,
+        uri: station.uri,
+        albumart: '/albumart?sourceicon=music_service/'+self.serviceName+'/logos/'+station.logo
       };
       response.navigation.lists[0].items.push(radio);
   }

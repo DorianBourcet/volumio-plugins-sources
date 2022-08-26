@@ -14,11 +14,25 @@
   },
   "stations": [
     {
-      "title": "FIP (AAC 192k)",
+      "title": "F I P",
       "uri": "webfip/0",
       "url": "http://direct.fipradio.fr/live/fip-hifi.aac",
-      "cover":"/albumart?sourceicon=music_service/80s80s/images/80s80s-cover.png",
+      "logo": "fip.svg",
       "api": "https://www.radiofrance.fr/api/v1.7/stations/fip/live"
+    },
+    {
+      "title": "GRRIF",
+      "uri": "webgrrif/0",
+      "url": "https://grrif.ice.infomaniak.ch/grrif-128.aac",
+      "logo": "grrif.jpg",
+      "api": "https://www.grrif.ch/live/covers.json"
+    },
+    {
+      "title": "Radio Nova",
+      "uri": "webradionova/0",
+      "url": "https://grrif.ice.infomaniak.ch/grrif-128.aac",
+      "logo": "radio_nova.jpg",
+      "api": "https://www.nova.fr/wp-json/radios/radio-nova"
     }
   ]
 }
