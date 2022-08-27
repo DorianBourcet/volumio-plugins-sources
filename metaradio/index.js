@@ -143,11 +143,31 @@ ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
 // Define a method to clear, add, and play an array of tracks
 ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 	var self = this;
-	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::clearAddPlayTrack');
 
+	if (self.timer) {
+		self.timer.clear();
+	}
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::clearAddPlayTrack');
 	self.commandRouter.logger.info(JSON.stringify(track));
 
-	return self.sendSpopCommand('uplay', [track.uri]);
+	return self.mpdPlugin.sendMpdCommand('stop', [])
+		.then(function () {
+			return self.mpdPlugin.sendMpdCommand('clear', []);
+		})
+		.then(function () {
+			return self.mpdPlugin.sendMpdCommand('consume 1', []);
+		})
+		.then(function () {
+				self.logger.info('[' + Date.now() + '] ' + '[RadioParadise] set to consume mode, adding url: ' + flacUri);
+				return self.mpdPlugin.sendMpdCommand('add "' + track.uri + '"', []);
+		})
+		.then(function () {
+				self.commandRouter.pushToastMessage('info',
+						self.getRadioI18nString('PLUGIN_NAME'),
+						self.getRadioI18nString('WAIT_FOR_RADIO_CHANNEL'));
+
+				return self.mpdPlugin.sendMpdCommand('play', []); // TODO
+		});
 };
 
 ControllerMetaradio.prototype.seek = function (timepos) {
