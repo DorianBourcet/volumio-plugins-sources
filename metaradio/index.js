@@ -38,6 +38,7 @@ ControllerMetaradio.prototype.onStart = function() {
 
 	self.mpdPlugin = this.commandRouter.pluginManager.getPlugin('music_service','mpd');
 
+	self.loadRadioI18nStrings();
 	self.addToBrowseSources();
 	self.addRadioResource();
 
@@ -158,7 +159,7 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 			return self.mpdPlugin.sendMpdCommand('consume 1', []);
 		})
 		.then(function () {
-				self.logger.info('[' + Date.now() + '] ' + '[RadioParadise] set to consume mode, adding url: ' + flacUri);
+				self.logger.info('[' + Date.now() + '] ' + '[RadioParadise] set to consume mode, adding url: ' + track.uri);
 				return self.mpdPlugin.sendMpdCommand('add "' + track.uri + '"', []);
 		})
 		.then(function () {
@@ -166,7 +167,10 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 						self.getRadioI18nString('PLUGIN_NAME'),
 						self.getRadioI18nString('WAIT_FOR_RADIO_CHANNEL'));
 
-				return self.mpdPlugin.sendMpdCommand('play', []); // TODO
+				return self.mpdPlugin.sendMpdCommand('play', [])
+					.fail(function (e) {
+						return libQ.reject(new Error());
+					}); // TODO
 		});
 };
 
@@ -218,10 +222,28 @@ ControllerMetaradio.prototype.pushState = function(state) {
 
 
 ControllerMetaradio.prototype.explodeUri = function(uri) {
-	var self = this;
-	var defer=libQ.defer();
-
 	// Mandatory: retrieve all info for a given URI
+	var self = this;
+	var defer = libQ.defer();
+	var response = [];
+	var uris = uri.split('/');
+	var channel = parseInt(uris[1]);
+	var station = uris[0].substring(3);
+
+	if (self.timer) {
+		self.timer.clear();
+	}
+	response.push({
+		service: self.serviceName,
+		type: 'track',
+		trackType: self.getRadioI18nString('PLUGIN_NAME'),
+		radioType: station,
+		albumart: '/albumart?sourceicon=music_service/'+self.serviceName+'/logos/'+self.radioStations[station][channel].logo,
+		uri: self.radioStations[station][channel].url,
+		name: self.radioStations[station][channel].title,
+		duration: 1000
+	});
+	defer.resolve(response);
 
 	return defer.promise;
 };
@@ -307,24 +329,41 @@ ControllerMetaradio.prototype.addRadioResource = function() {
 
 	self.radioStations = radioResource.stations;
 	self.rootNavigation = JSON.parse(JSON.stringify(baseNavigation));
-}
+};
 
 ControllerMetaradio.prototype.getRadioContent = function() {
-  var self=this;
+  var self = this;
   var response;
 
   response = self.rootNavigation;
   response.navigation.lists[0].items = [];
-  for (var station of self.radioStations) {
-      var radio = {
-        service: self.serviceName,
-        type: 'song',
-        title: station.title,
-        uri: station.uri,
-        albumart: '/albumart?sourceicon=music_service/'+self.serviceName+'/logos/'+station.logo
-      };
-      response.navigation.lists[0].items.push(radio);
-  }
+	for (var station in self.radioStations) {
+		for (var channel of self.radioStations[station]) {
+				var radio = {
+					service: self.serviceName,
+					type: 'song',
+					title: channel.title,
+					uri: channel.uri,
+					albumart: '/albumart?sourceicon=music_service/'+self.serviceName+'/logos/'+channel.logo
+				};
+				response.navigation.lists[0].items.push(radio);
+		}
+	}
 
   return libQ.resolve(response);
+};
+
+ControllerMetaradio.prototype.loadRadioI18nStrings = function () {
+	var self = this;
+	self.i18nStrings = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
+	self.i18nStringsDefaults = fs.readJsonSync(__dirname + '/i18n/strings_en.json');
+};
+
+ControllerMetaradio.prototype.getRadioI18nString = function (key) {
+	var self = this;
+
+	if (self.i18nStrings[key] !== undefined)
+			return self.i18nStrings[key];
+	else
+			return self.i18nStringsDefaults[key];
 };
