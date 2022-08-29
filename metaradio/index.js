@@ -155,6 +155,9 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 			return self.mpdPlugin.sendMpdCommand('clear', []);
 		})
 		.then(function () {
+			return self.mpdPlugin.sendMpdCommand('consume 1', []);
+		})
+		.then(function () {
 			return self.mpdPlugin.sendMpdCommand('add "' + track.uri + '"', []);
 		})
 		.then(function () {
