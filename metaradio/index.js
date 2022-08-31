@@ -18,6 +18,7 @@ function ControllerMetaradio(context) {
 	self.name = 'Metaradio';
 	self.serviceName = 'metaradio';
 	self.state = {};
+	self.timer = null;
 }
 
 ControllerMetaradio.prototype.onVolumioStart = function()
@@ -167,6 +168,9 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 		})
 		.then(function () {
 			return self.setMetadata(track.api, track.scraper);
+		})
+		.fail(function (e) {
+			return libQ.reject(new Error());
 		});
 };
 
@@ -360,37 +364,41 @@ ControllerMetaradio.prototype.getRadioI18nString = function (key) {
 
 ControllerMetaradio.prototype.setMetadata = function (url, scraperName) {
 	var self = this;
-	self.logger.verbose('IN SET_METADATA '+url+' '+scraperName);
+	//self.logger.verbose('IN SET_METADATA '+url+' '+scraperName);
 	const path = require('path');
 	var fullPath = __dirname + '/scrapers/' + scraperName;
-	self.logger.verbose('FULL_PATH '+fullPath);
+	//self.logger.verbose('FULL_PATH '+fullPath);
 	const scraper = new (require(fullPath))();
-	self.logger.verbose('SCRAPER '+scraper)
+	//self.logger.verbose('SCRAPER '+scraper)
 	return scraper.getMetadata(self.context, url)
 		.then(function (result) {
 			self.logger.verbose('FIP_RESULT '+JSON.stringify(result)); // TODO
-			return libQ.resolve(self.pushSongState(result));
+			return libQ.resolve(self.pushSongState(result))
+				.then(function () {
+					self.timer = new Timer(self.setMetadata.bind(self), [url, scraperName], 10000);
+				});
 		});
 }
 
 ControllerMetaradio.prototype.pushSongState = function (metadata) {
 	var self = this;
+	self.logger.verbose('METADATA_FETCHED '+JSON.stringify(metadata));
 	self.state = {
 		status: 'play',
 		service: self.serviceName,
 		type: 'webradio',
-		//trackType: audioFormat,
+		trackType: 'aac',
 		radioType: 'fip',
 		albumart: metadata.cover,
 		uri: 'http://direct.fipradio.fr/live/fip-hifi.aac', // TODO
-		name: metadata.title,
+		name: 'France Inter Paris',
 		title: metadata.title,
 		artist: metadata.artist,
 		album: metadata.album,
 		streaming: true,
 		disableUiControls: true,
 		duration: 10000,
-		//seek: 0,
+		seek: 0,
 		//samplerate: '44.1 KHz',
 		//bitdepth: '16 bit',
 		//channels: 2
@@ -405,11 +413,11 @@ ControllerMetaradio.prototype.pushSongState = function (metadata) {
 	queueItem.artist =  metadata.artist;
 	queueItem.album = metadata.album;
 	queueItem.albumart = metadata.cover;
-	queueItem.trackType = 'Rparadise '+ channelMix;
-	queueItem.duration = metadata.time;
-	queueItem.samplerate = '44.1 KHz';
-	queueItem.bitdepth = '16 bit';
-	queueItem.channels = 2;
+	queueItem.trackType = 'FIP';
+	queueItem.duration = 10000;
+	//queueItem.samplerate = '44.1 KHz';
+	//queueItem.bitdepth = '16 bit';
+	//queueItem.channels = 2;
 	
 	//reset volumio internal timer
 	self.commandRouter.stateMachine.currentSeek = 0;
@@ -421,4 +429,27 @@ ControllerMetaradio.prototype.pushSongState = function (metadata) {
 
 	//volumio push state
 	self.commandRouter.servicePushState(self.state, self.serviceName);
+};
+
+function Timer(callback, args, delay) {
+	var start, remaining = delay;
+
+	var nanoTimer = new NanoTimer();
+
+	Timer.prototype.pause = function () {
+		nanoTimer.clearTimeout();
+		remaining -= new Date() - start;
+	};
+
+	Timer.prototype.resume = function () {
+		start = new Date();
+		nanoTimer.clearTimeout();
+		nanoTimer.setTimeout(callback, args, remaining + 'm');
+	};
+
+	Timer.prototype.clear = function () {
+		nanoTimer.clearTimeout();
+	};
+
+	this.resume();
 };

@@ -47,7 +47,7 @@ class RadioFranceScraper {
             var [title] = jp.query(metadata, '$.now.firstLine.title');
             var [artist] = jp.query(metadata, '$.now.secondLine.title');
             var [album] = jp.query(metadata, '$.now.song.release.title');
-            var [cover] = jp.query(metadata, '$.now.secondLine.visuals.card.webpSrc');
+            var [cover] = jp.query(metadata, '$.now.visuals.card.webpSrc');
 
             return {
                 title,
