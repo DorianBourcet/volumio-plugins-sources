@@ -2,6 +2,7 @@
 
 var libQ = require('kew');
 var fs=require('fs-extra');
+const NanoTimer = require('nanotimer');
 var config = new (require('v-conf'))();
 var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
@@ -157,9 +158,6 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 			return self.mpdPlugin.sendMpdCommand('clear', []);
 		})
 		.then(function () {
-			return self.mpdPlugin.sendMpdCommand('consume 1', []);
-		})
-		.then(function () {
 			return self.mpdPlugin.sendMpdCommand('add "' + track.uri + '"', []);
 		})
 		.then(function () {
@@ -168,8 +166,18 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 			return self.mpdPlugin.sendMpdCommand('play', []);
 		})
 		.then(function () {
+			return self.mpdPlugin.getState().then(function (state) {
+				var vState = self.commandRouter.stateMachine.getState();
+				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
+				queueItem.name = 'France Inter Paris';
+				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
+			});
+		})
+		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
+			//self.timer = new MTimer(self.setMetadata.bind(self), [track.api], 20);
 			return self.setMetadata(track.api);
+	
 		})
 		.fail(function (e) {
 			return libQ.reject(new Error());
@@ -368,10 +376,33 @@ ControllerMetaradio.prototype.setMetadata = function (url) {
 	self.logger.verbose('CALLED_SET_METADATA');
 	return self.scraper.getMetadata(self.context, url)
 		.then(function (result) {
-			return libQ.resolve(self.pushSongState(result))
-				.then(function () {
-					self.timer = new Timer(self.setMetadata.bind(self), [url], 20);
-				});
+			var vState = self.commandRouter.stateMachine.getState();
+			var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
+			vState.seek = 0;
+			vState.disableUiControls = true;
+
+			vState.duration = 20;
+			queueItem.duration = 20;
+
+			vState.albumart = result.cover;
+			queueItem.albumart = result.cover;
+
+			vState.name =  result.title;
+			queueItem.name =  result.title;
+			vState.artist =  result.artist;
+			queueItem.artist =  result.artist;
+			vState.album = result.album;
+			queueItem.album = result.album;
+
+			self.commandRouter.stateMachine.currentSeek = 0;  // reset Volumio timer
+			self.commandRouter.stateMachine.playbackStart=Date.now();
+			self.commandRouter.stateMachine.askedForPrefetch=false;
+			self.commandRouter.stateMachine.prefetchDone=false;
+			self.commandRouter.stateMachine.simulateStopStartDone=false;
+
+			self.commandRouter.servicePushState(vState, self.serviceName);
+
+			self.timer = new MTimer(self.setMetadata.bind(self), [url], 20);
 		});
 }
 
@@ -426,26 +457,19 @@ ControllerMetaradio.prototype.pushSongState = function (metadata) {
 	self.commandRouter.servicePushState(self.state, self.serviceName);
 };
 
-function Timer(callback, args, delay) {
-	var self = this;
-	var start, remaining = delay;
+function MTimer(callback, args, delay) {
+	var remaining = delay;
 
-	var nanoTimer = new NanoTimer();
+  var nanoTimer = new NanoTimer();
 
-	Timer.prototype.pause = function () {
-		nanoTimer.clearTimeout();
-		remaining -= new Date() - start;
-	};
+  MTimer.prototype.start = function () {
+    nanoTimer.clearTimeout();
+    nanoTimer.setTimeout(callback, args, remaining + 's');
+  };
 
-	Timer.prototype.resume = function () {
-		start = new Date();
-		nanoTimer.clearTimeout();
-		nanoTimer.setTimeout(callback, args, remaining + 'm');
-	};
+  MTimer.prototype.clear = function () {
+    nanoTimer.clearTimeout();
+  };
 
-	Timer.prototype.clear = function () {
-		nanoTimer.clearTimeout();
-	};
-
-	this.resume();
+  this.start();
 };
