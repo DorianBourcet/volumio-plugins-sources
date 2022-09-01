@@ -19,6 +19,7 @@ function ControllerMetaradio(context) {
 	self.serviceName = 'metaradio';
 	self.state = {};
 	self.timer = null;
+	self.scraper = null;
 }
 
 ControllerMetaradio.prototype.onVolumioStart = function()
@@ -167,7 +168,8 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 			return self.mpdPlugin.sendMpdCommand('play', []);
 		})
 		.then(function () {
-			return self.setMetadata(track.api, track.scraper);
+			self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
+			return self.setMetadata(track.api);
 		})
 		.fail(function (e) {
 			return libQ.reject(new Error());
@@ -222,7 +224,6 @@ ControllerMetaradio.prototype.resume = function () {
 			// adapt play status and update state machine
 			self.state.status = 'play';
 			self.commandRouter.servicePushState(self.state, self.serviceName);
-			// TODO set metadata
 		});
 };
 
@@ -362,20 +363,14 @@ ControllerMetaradio.prototype.getRadioI18nString = function (key) {
 			return self.i18nStringsDefaults[key];
 };
 
-ControllerMetaradio.prototype.setMetadata = function (url, scraperName) {
+ControllerMetaradio.prototype.setMetadata = function (url) {
 	var self = this;
-	//self.logger.verbose('IN SET_METADATA '+url+' '+scraperName);
-	const path = require('path');
-	var fullPath = __dirname + '/scrapers/' + scraperName;
-	//self.logger.verbose('FULL_PATH '+fullPath);
-	const scraper = new (require(fullPath))();
-	//self.logger.verbose('SCRAPER '+scraper)
-	return scraper.getMetadata(self.context, url)
+	self.logger.verbose('CALLED_SET_METADATA');
+	return self.scraper.getMetadata(self.context, url)
 		.then(function (result) {
-			self.logger.verbose('FIP_RESULT '+JSON.stringify(result)); // TODO
 			return libQ.resolve(self.pushSongState(result))
 				.then(function () {
-					self.timer = new Timer(self.setMetadata.bind(self), [url, scraperName], 10000);
+					self.timer = new Timer(self.setMetadata.bind(self), [url], 20);
 				});
 		});
 }
@@ -397,7 +392,7 @@ ControllerMetaradio.prototype.pushSongState = function (metadata) {
 		album: metadata.album,
 		streaming: true,
 		disableUiControls: true,
-		duration: 10000,
+		duration: 20,
 		seek: 0,
 		//samplerate: '44.1 KHz',
 		//bitdepth: '16 bit',
@@ -414,7 +409,7 @@ ControllerMetaradio.prototype.pushSongState = function (metadata) {
 	queueItem.album = metadata.album;
 	queueItem.albumart = metadata.cover;
 	queueItem.trackType = 'FIP';
-	queueItem.duration = 10000;
+	queueItem.duration = 20;
 	//queueItem.samplerate = '44.1 KHz';
 	//queueItem.bitdepth = '16 bit';
 	//queueItem.channels = 2;
@@ -422,7 +417,7 @@ ControllerMetaradio.prototype.pushSongState = function (metadata) {
 	//reset volumio internal timer
 	self.commandRouter.stateMachine.currentSeek = 0;
 	self.commandRouter.stateMachine.playbackStart=Date.now();
-	self.commandRouter.stateMachine.currentSongDuration=10000/*metadata.time*/;
+	self.commandRouter.stateMachine.currentSongDuration=20/*metadata.time*/;
 	self.commandRouter.stateMachine.askedForPrefetch=false;
 	self.commandRouter.stateMachine.prefetchDone=false;
 	self.commandRouter.stateMachine.simulateStopStartDone=false;
@@ -432,6 +427,7 @@ ControllerMetaradio.prototype.pushSongState = function (metadata) {
 };
 
 function Timer(callback, args, delay) {
+	var self = this;
 	var start, remaining = delay;
 
 	var nanoTimer = new NanoTimer();
