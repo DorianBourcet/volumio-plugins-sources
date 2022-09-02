@@ -169,14 +169,17 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 			return self.mpdPlugin.getState().then(function (state) {
 				var vState = self.commandRouter.stateMachine.getState();
 				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-				queueItem.name = 'France Inter Paris';
+				queueItem.name = track.title;
+				queueItem.trackType = track.title;
+				vState.trackType = track.title;
+				//self.commandRouter.servicePushState(vState, self.serviceName);
 				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
 			});
 		})
 		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
-			//self.timer = new MTimer(self.setMetadata.bind(self), [track.api], 20);
-			return self.setMetadata(track.api);
+			self.timer = new MTimer(self.setMetadata.bind(self), [track.api], 3);
+			//return self.setMetadata(track.api);
 	
 		})
 		.fail(function (e) {
@@ -393,6 +396,9 @@ ControllerMetaradio.prototype.setMetadata = function (url) {
 			queueItem.artist =  result.artist;
 			vState.album = result.album;
 			queueItem.album = result.album;
+
+			//queueItem.trackType = 'toto';
+			//vState.trackType = 'TOTO';
 
 			self.commandRouter.stateMachine.currentSeek = 0;  // reset Volumio timer
 			self.commandRouter.stateMachine.playbackStart=Date.now();
