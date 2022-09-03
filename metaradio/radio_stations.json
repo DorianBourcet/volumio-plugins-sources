@@ -29,7 +29,8 @@
         "uri": "webgrrif/0",
         "url": "https://grrif.ice.infomaniak.ch/grrif-128.aac",
         "logo": "grrif.jpg",
-        "api": "https://www.grrif.ch/live/covers.json"
+        "api": "https://www.grrif.ch/live/covers.json",
+        "scraper": "grrif"
       }
     ],
     "radionova": [

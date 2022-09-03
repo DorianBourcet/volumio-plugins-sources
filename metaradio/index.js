@@ -21,6 +21,7 @@ function ControllerMetaradio(context) {
 	self.state = {};
 	self.timer = null;
 	self.scraper = null;
+	self.stationName = null;
 }
 
 ControllerMetaradio.prototype.onVolumioStart = function()
@@ -172,13 +173,14 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 				queueItem.name = track.title;
 				queueItem.trackType = track.title;
 				vState.trackType = track.title;
+				self.stationName = track.title;
 				//self.commandRouter.servicePushState(vState, self.serviceName);
 				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
 			});
 		})
 		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
-			self.timer = new MTimer(self.setMetadata.bind(self), [track.api], 3);
+			self.timer = new MTimer(self.setMetadata.bind(self), [track.api], 2);
 			//return self.setMetadata(track.api);
 	
 		})
@@ -384,8 +386,8 @@ ControllerMetaradio.prototype.setMetadata = function (url) {
 			vState.seek = 0;
 			vState.disableUiControls = true;
 
-			vState.duration = 20;
-			queueItem.duration = 20;
+			vState.duration = result.duration ?? 20;
+			queueItem.duration = result.duration ?? 20;
 
 			vState.albumart = result.cover;
 			queueItem.albumart = result.cover;
@@ -397,18 +399,19 @@ ControllerMetaradio.prototype.setMetadata = function (url) {
 			vState.album = result.album;
 			queueItem.album = result.album;
 
-			//queueItem.trackType = 'toto';
-			//vState.trackType = 'TOTO';
+			//queueItem.trackType = 'F I P';
+			//vState.trackType = self.stationName;
 
 			self.commandRouter.stateMachine.currentSeek = 0;  // reset Volumio timer
-			self.commandRouter.stateMachine.playbackStart=Date.now();
+			self.commandRouter.stateMachine.playbackStart=result.startTime ? (result.startTime * 1000) : Date.now();
+			self.commandRouter.stateMachine.currentSongDuration=result.duration ?? 20;
 			self.commandRouter.stateMachine.askedForPrefetch=false;
 			self.commandRouter.stateMachine.prefetchDone=false;
 			self.commandRouter.stateMachine.simulateStopStartDone=false;
 
 			self.commandRouter.servicePushState(vState, self.serviceName);
 
-			self.timer = new MTimer(self.setMetadata.bind(self), [url], 20);
+			self.timer = new MTimer(self.setMetadata.bind(self), [url], result.endTime ? (result.endTime - Date.now()/1000) : 20);
 		});
 }
 

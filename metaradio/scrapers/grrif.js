@@ -4,7 +4,7 @@ const libQ = require('kew');
 const http = require('https');
 const jp = require('jsonpath');
 
-class RadioFranceScraper {
+class GrrifScraper {
 
     _fetchMetadata(pluginContext, url) {
         var defer = libQ.defer();    
@@ -13,7 +13,7 @@ class RadioFranceScraper {
             if (resp.statusCode < 200 || resp.statusCode > 299) {
                 throw new Error('Failed to query the api');
             } else {
-                pluginContext.logger.verbose('FIP_URL '+url);
+                pluginContext.logger.verbose('GRRIF_URL '+url);
                 let data = '';
         
                 // A chunk of data has been received.
@@ -23,7 +23,7 @@ class RadioFranceScraper {
         
                 // The whole response has been received.
                 resp.on('end', () => {
-                    pluginContext.logger.verbose('FIP_RESPONSE' + data);
+                    pluginContext.logger.verbose('GRRIF_RESPONSE' + data);
                     defer.resolve(data);
                 });
             }
@@ -44,27 +44,18 @@ class RadioFranceScraper {
             }
         })
         .then(function (metadata) {
-            var [title] = jp.query(metadata, '$.now.firstLine.title');
-            var [artist] = jp.query(metadata, '$.now.secondLine.title');
-            var [album] = jp.query(metadata, '$.now.song.release.title');
-            var [cover] = jp.query(metadata, '$.now.visuals.card.webpSrc');
-            var [startTime] = jp.query(metadata, '$.now.startTime');
-            //startTime *= 1000;
-            var [endTime] = jp.query(metadata, '$.now.endTime');
-            //endTime *= 1000;
+            var [title] = jp.query(metadata, '$.[-1:].Title');
+            var [artist] = jp.query(metadata, '$.[-1:].Artist');
+            var [cover] = jp.query(metadata, '$.[-1:].URLCover');
 
             return {
                 title,
                 artist,
-                album,
                 cover,
-                startTime,
-                endTime,
-                duration : endTime - startTime,
             };
         })
     }
 
 }
 
-module.exports = RadioFranceScraper;
+module.exports = GrrifScraper;
