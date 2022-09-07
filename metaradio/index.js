@@ -381,6 +381,7 @@ ControllerMetaradio.prototype.setMetadata = function (url) {
 	self.logger.verbose('CALLED_SET_METADATA');
 	return self.scraper.getMetadata(self.context, url)
 		.then(function (result) {
+			self.logger.verbose('GOT_RESULTS '+JSON.stringify(result));
 			var vState = self.commandRouter.stateMachine.getState();
 			var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
 			vState.seek = 0;

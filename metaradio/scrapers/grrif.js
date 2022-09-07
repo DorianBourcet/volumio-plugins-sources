@@ -39,14 +39,16 @@ class GrrifScraper {
         pluginContext.logger.verbose('HELLOOOW');
         return this._fetchMetadata(pluginContext, url)
         .then(function (eventResponse) {
+            pluginContext.logger.verbose('HELLOOOW1 '+JSON.parse(eventResponse));
             if (eventResponse !== null) {
-                return JSON.parse(eventResponse);
+                return JSON.parse(eventResponse).reverse();
             }
         })
         .then(function (metadata) {
-            var [title] = jp.query(metadata, '$.[-1:].Title');
-            var [artist] = jp.query(metadata, '$.[-1:].Artist');
-            var [cover] = jp.query(metadata, '$.[-1:].URLCover');
+            //pluginContext.logger.verbose('METADATA '+JSON.stringify(metadata));
+            var [title] = jp.query(metadata, '$.0.Title');
+            var [artist] = jp.query(metadata, '$.0.Artist');
+            var [cover] = jp.query(metadata, '$.0.URLCover');
 
             return {
                 title,
