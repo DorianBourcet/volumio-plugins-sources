@@ -180,7 +180,7 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 		})
 		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
-			self.timer = new MTimer(self.setMetadata.bind(self), [track.api], 2);
+			self.timer = new MTimer(self.setMetadata.bind(self), [track.api], 1);
 			//return self.setMetadata(track.api);
 	
 		})
