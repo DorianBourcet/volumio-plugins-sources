@@ -1,62 +1,46 @@
 'use strict';
 
-const libQ = require('kew');
-const http = require('https');
 const jp = require('jsonpath');
+const BaseScraper = require('./base');
+const dayjs = require('dayjs')
+const utc = require('dayjs/plugin/utc')
+const timezone = require('dayjs/plugin/timezone')
 
-class GrrifScraper {
+class GrrifScraper extends BaseScraper {
 
-    _fetchMetadata(pluginContext, url) {
-        var defer = libQ.defer();    
-        
-        http.get(url, (resp) => {
-            if (resp.statusCode < 200 || resp.statusCode > 299) {
-                throw new Error('Failed to query the api');
-            } else {
-                pluginContext.logger.verbose('GRRIF_URL '+url);
-                let data = '';
-        
-                // A chunk of data has been received.
-                resp.on('data', (chunk) => {
-                    data += chunk;
-                });
-        
-                // The whole response has been received.
-                resp.on('end', () => {
-                    pluginContext.logger.verbose('GRRIF_RESPONSE' + data);
-                    defer.resolve(data);
-                });
-            }
-    
-        }).on("error", (err) => {
-            throw new Error('Failed to query the api');
-        });
-        
-        return defer.promise;
-    };
+  /*construct() {
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+    super();
+  }*/
 
-    getMetadata(pluginContext, url) {
-        pluginContext.logger.verbose('HELLOOOW');
-        return this._fetchMetadata(pluginContext, url)
-        .then(function (eventResponse) {
-            pluginContext.logger.verbose('HELLOOOW1 '+JSON.parse(eventResponse));
-            if (eventResponse !== null) {
-                return JSON.parse(eventResponse).reverse();
-            }
-        })
-        .then(function (metadata) {
-            //pluginContext.logger.verbose('METADATA '+JSON.stringify(metadata));
-            var [title] = jp.query(metadata, '$.0.Title');
-            var [artist] = jp.query(metadata, '$.0.Artist');
-            var [cover] = jp.query(metadata, '$.0.URLCover');
+  getMetadata(pluginContext, url) {
+    return this._fetchMetadata(pluginContext, url)
+      .then(function (eventResponse) {
+        if (eventResponse !== null) {
+          return JSON.parse(eventResponse).reverse();
+        }
+      })
+      .then(function (metadata) {
+        var [title] = jp.query(metadata, '$.0.Title');
+        var [artist] = jp.query(metadata, '$.0.Artist');
+        var [cover] = jp.query(metadata, '$.0.URLCover');
+        var [hours] = jp.query(metadata, '$.0.Hours');
+        //var startTime = Math.floor(Date.now() / 1000);
+        //var endTime = startTime + 40;
+        dayjs.extend(utc);
+        dayjs.extend(timezone);
+        var currentDateInSwitzerland = dayjs().tz('Europe/Zurich').format('YYYY-MM-DD');
+        var startTime = dayjs.tz(currentDateInSwitzerland+'T'+hours+':30', 'Europe/Zurich').unix();
 
-            return {
-                title,
-                artist,
-                cover,
-            };
-        })
-    }
+        return {
+          title,
+          artist,
+          cover,
+          startTime,
+        };
+      });
+  }
 
 }
 

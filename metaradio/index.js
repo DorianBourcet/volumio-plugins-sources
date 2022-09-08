@@ -376,19 +376,31 @@ ControllerMetaradio.prototype.getRadioI18nString = function (key) {
 			return self.i18nStringsDefaults[key];
 };
 
+ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
+	let now = Math.floor(Date.now() / 1000);
+	var initial = {
+		startTime: now,
+    endTime: now + 40,
+	};
+	return { ...initial, ...metadata};
+}
+
 ControllerMetaradio.prototype.setMetadata = function (url) {
 	var self = this;
 	self.logger.verbose('CALLED_SET_METADATA');
-	return self.scraper.getMetadata(self.context, url)
+	return self.scraper.getMetadata(url)
 		.then(function (result) {
+			result = self.hydrateMetadata(result);
 			self.logger.verbose('GOT_RESULTS '+JSON.stringify(result));
+			var duration = result.endTime - result.startTime;
+			var seek = Date.now() - result.startTime*1000;
 			var vState = self.commandRouter.stateMachine.getState();
 			var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-			vState.seek = 0;
+			vState.seek = seek;
 			vState.disableUiControls = true;
 
-			vState.duration = result.duration ?? 20;
-			queueItem.duration = result.duration ?? 20;
+			vState.duration = duration;
+			queueItem.duration = duration;
 
 			vState.albumart = result.cover;
 			queueItem.albumart = result.cover;
@@ -403,9 +415,9 @@ ControllerMetaradio.prototype.setMetadata = function (url) {
 			//queueItem.trackType = 'F I P';
 			//vState.trackType = self.stationName;
 
-			self.commandRouter.stateMachine.currentSeek = 0;  // reset Volumio timer
-			self.commandRouter.stateMachine.playbackStart=result.startTime ? (result.startTime * 1000) : Date.now();
-			self.commandRouter.stateMachine.currentSongDuration=result.duration ?? 20;
+			self.commandRouter.stateMachine.currentSeek = seek;  // reset Volumio timer
+			self.commandRouter.stateMachine.playbackStart=result.startTime;
+			self.commandRouter.stateMachine.currentSongDuration=duration;
 			self.commandRouter.stateMachine.askedForPrefetch=false;
 			self.commandRouter.stateMachine.prefetchDone=false;
 			self.commandRouter.stateMachine.simulateStopStartDone=false;
