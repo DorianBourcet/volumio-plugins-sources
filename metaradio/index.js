@@ -22,6 +22,8 @@ function ControllerMetaradio(context) {
 	self.timer = null;
 	self.scraper = null;
 	self.stationName = null;
+	self.latestTitleInfo = null;
+	self.titleInfoAttempt = 0;
 }
 
 ControllerMetaradio.prototype.onVolumioStart = function()
@@ -377,12 +379,38 @@ ControllerMetaradio.prototype.getRadioI18nString = function (key) {
 };
 
 ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
+	var self = this;
+
 	let now = Math.floor(Date.now() / 1000);
+	let computed = self.computeEndTime(metadata);
 	var initial = {
 		startTime: now,
-    endTime: now + 40,
 	};
+	if ('endTime' in metadata === false) {
+		self.logger.verbose('HOLAA');
+		initial.endTime = self.computeEndTime(metadata);
+	}
 	return { ...initial, ...metadata};
+}
+
+ControllerMetaradio.prototype.computeEndTime = function (metadata) {
+	var self = this;
+
+	var titleInfo = [metadata.title, metadata.artist].join('-');
+	var now = Math.floor(Date.now() / 1000);
+	if (titleInfo !== self.latestTitleInfo) {
+		self.latestTitleInfo = titleInfo;
+		self.titleInfoAttempt = 0;
+
+		var seek = now - metadata.startTime;
+
+		if (seek < 120) {return now + 120 - seek;}
+	}
+	else {
+		self.titleInfoAttempt++;
+	}
+
+	return now + 20;
 }
 
 ControllerMetaradio.prototype.setMetadata = function (url) {
@@ -393,7 +421,7 @@ ControllerMetaradio.prototype.setMetadata = function (url) {
 			result = self.hydrateMetadata(result);
 			self.logger.verbose('GOT_RESULTS '+JSON.stringify(result));
 			var duration = result.endTime - result.startTime;
-			var seek = Date.now() - result.startTime*1000;
+			var seek = Date.now() - result.startTime * 1000;
 			var vState = self.commandRouter.stateMachine.getState();
 			var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
 			vState.seek = seek;

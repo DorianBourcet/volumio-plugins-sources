@@ -26,12 +26,12 @@ class GrrifScraper extends BaseScraper {
         var [artist] = jp.query(metadata, '$.0.Artist');
         var [cover] = jp.query(metadata, '$.0.URLCover');
         var [hours] = jp.query(metadata, '$.0.Hours');
-        //var startTime = Math.floor(Date.now() / 1000);
-        //var endTime = startTime + 40;
         dayjs.extend(utc);
         dayjs.extend(timezone);
         var currentDateInSwitzerland = dayjs().tz('Europe/Zurich').format('YYYY-MM-DD');
-        var startTime = dayjs.tz(currentDateInSwitzerland+'T'+hours+':30', 'Europe/Zurich').unix();
+        var estimatedStartTime = dayjs.tz(currentDateInSwitzerland+'T'+hours+':30', 'Europe/Zurich').unix();
+        var now = Math.floor(Date.now() / 1000);
+        var startTime = Math.min(now,estimatedStartTime);
 
         return {
           title,
