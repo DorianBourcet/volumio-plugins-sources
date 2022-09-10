@@ -206,11 +206,16 @@ ControllerMetaradio.prototype.stop = function() {
 	}
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::stop');
 
-	return self.mpdPlugin.sendMpdCommand('stop', [])
+	/*return self.mpdPlugin.sendMpdCommand('stop', [])
 		.then(function () {
 			self.state.status = 'stop';
 			self.commandRouter.servicePushState(self.state, self.serviceName);
+		});*/
+	return self.mpdPlugin.stop().then(function () {
+		return self.mpdPlugin.getState().then(function (state) {
+				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
 		});
+  });
 };
 
 // Pause
@@ -221,25 +226,45 @@ ControllerMetaradio.prototype.pause = function() {
 		self.timer.clear();
 	}
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::pause');
-	return self.mpdPlugin.sendMpdCommand('pause', [1])
+	/*return self.mpdPlugin.sendMpdCommand('pause', [1])
     .then(function () {
         var vState = self.commandRouter.stateMachine.getState();
         self.state.status = 'pause';
         self.state.seek = vState.seek;
         self.commandRouter.servicePushState(self.state, self.serviceName);
-    });
+    });*/
+	return self.mpdPlugin.pause().then(function () {
+		return self.mpdPlugin.getState().then(function (state) {
+				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
+		});
+	});
 };
 
 // Resume
 ControllerMetaradio.prototype.resume = function () {
 	var self = this;
 
-	return self.mpdPlugin.sendMpdCommand('play', [])
+	/*return self.mpdPlugin.sendMpdCommand('play', [])
 		.then(function () {
 			// adapt play status and update state machine
 			self.state.status = 'play';
 			self.commandRouter.servicePushState(self.state, self.serviceName);
+		});*/
+	return self.mpdPlugin.resume().then(function () {
+		return self.mpdPlugin.getState().then(function (state) {
+
+			/*self.commandRouter.stateMachine.syncState(state, self.serviceName);
+			if (self.state.station === 'kbs') {
+				self.setRadioMetaInfo(
+					self.state.station,
+					self.state.channel,
+					self.state.programCode,
+					self.state.metaUrl,
+					true
+				);
+			}*/
 		});
+	});
 };
 
 
@@ -382,12 +407,10 @@ ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
 	var self = this;
 
 	let now = Math.floor(Date.now() / 1000);
-	let computed = self.computeEndTime(metadata);
 	var initial = {
 		startTime: now,
 	};
 	if ('endTime' in metadata === false) {
-		self.logger.verbose('HOLAA');
 		initial.endTime = self.computeEndTime(metadata);
 	}
 	return { ...initial, ...metadata};
@@ -404,7 +427,7 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 
 		var seek = now - metadata.startTime;
 
-		if (seek < 120) {return now + 120 - seek;}
+		if (seek < 150) {return now + 150 - seek;}
 	}
 	else {
 		self.titleInfoAttempt++;
@@ -452,7 +475,7 @@ ControllerMetaradio.prototype.setMetadata = function (url) {
 
 			self.commandRouter.servicePushState(vState, self.serviceName);
 
-			self.timer = new MTimer(self.setMetadata.bind(self), [url], result.endTime ? (result.endTime - Date.now()/1000) : 20);
+			self.timer = new MTimer(self.setMetadata.bind(self), [url], result.endTime - Date.now()/1000);
 		});
 }
 
