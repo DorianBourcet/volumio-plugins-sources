@@ -25,6 +25,7 @@ function ControllerMetaradio(context) {
 	self.stationName = null;
 	self.latestTitleInfo = null;
 	self.titleInfoAttempt = 0;
+  self.currentTrack = {};
 }
 
 ControllerMetaradio.prototype.onVolumioStart = function()
@@ -150,7 +151,8 @@ ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
 // Define a method to clear, add, and play an array of tracks
 ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 	var self = this;
-	//self.logger.verbose('CLEAR_ADD_TRACK '+JSON.stringify(track));
+  self.currentTrack = track;
+	self.logger.verbose('CLEAR_ADD_TRACK '+JSON.stringify(track));
 
 	if (self.timer) {
 		self.timer.clear();
@@ -232,16 +234,16 @@ ControllerMetaradio.prototype.stop = function() {
 	}
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::stop');
 
-	/*return self.mpdPlugin.sendMpdCommand('stop', [])
+	return self.mpdPlugin.sendMpdCommand('stop', [])
 		.then(function () {
 			self.state.status = 'stop';
 			self.commandRouter.servicePushState(self.state, self.serviceName);
-		});*/
-	return self.mpdPlugin.stop().then(function () {
+		});
+	/*return self.mpdPlugin.stop().then(function () {
 		return self.mpdPlugin.getState().then(function (state) {
 				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
 		});
-  });
+  });*/
 };
 
 // Pause
@@ -296,7 +298,60 @@ ControllerMetaradio.prototype.pause = function() {
 ControllerMetaradio.prototype.resume = function () {
 	var self = this;
 
+	if (self.timer) {
+		self.timer.clear();
+	}
+	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::resume');
+	self.commandRouter.logger.info(JSON.stringify(self.currentTrack));
+
 	return self.mpdPlugin.sendMpdCommand('play', [])
+		.then(function () {
+			self.state = {
+				status: 'play',
+				service: self.serviceName,
+				type: 'webradio',
+				//trackType: 'aac',
+				//radioType: 'fip',
+				albumart: self.currentTrack.albumart,
+				uri: self.currentTrack.uri,
+				name: self.currentTrack.name,
+				//title: metadata.title,
+				//artist: metadata.artist,
+				//album: metadata.album,
+				streaming: true,
+				disableUiControls: true,
+				//duration: 20,
+				seek: 0,
+				//samplerate: '44.1 KHz',
+				//bitdepth: '16 bit',
+				//channels: 2
+			};
+			self.logger.verbose('SAVED_SELF_STATE '+JSON.stringify(self.state));
+		})
+		.then(function () {
+			return self.mpdPlugin.getState().then(function (state) {
+				var vState = self.commandRouter.stateMachine.getState();
+				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
+				queueItem.name = self.currentTrack.title;
+				queueItem.trackType = self.currentTrack.title;
+				vState.trackType = self.currentTrack.title;
+				self.stationName = self.currentTrack.title;
+				//self.commandRouter.servicePushState(vState, self.serviceName);
+				return self.commandRouter.servicePushState(state, self.serviceName);
+			});
+		})
+		.then(function () {
+			self.scraper = new (require(__dirname + '/scrapers/' + self.currentTrack.scraper))();
+			self.api = self.currentTrack.api;
+			self.timer = new MTimer(self.setMetadata.bind(self), [self.currentTrack.api], 1);
+			//return self.setMetadata(track.api);
+	
+		})
+		.fail(function (e) {
+			return libQ.reject(new Error());
+		});
+
+	/*return self.mpdPlugin.sendMpdCommand('play', [])
 		.then(function () {
 			self.mpdPlugin.getState().then(function (state) {
 				var vState = self.commandRouter.stateMachine.getState();
@@ -305,14 +360,15 @@ ControllerMetaradio.prototype.resume = function () {
 				queueItem.trackType = track.title;
 				vState.trackType = track.title;
 				self.stationName = track.title;
-				//self.commandRouter.servicePushState(vState, self.serviceName);
-				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
+        vState.status = 'play';
+        queueItem.status = 'play';
+				self.commandRouter.servicePushState(self.state, self.serviceName);
 			});
 			// adapt play status and update state machine
 			//self.state.status = 'play';
 			//self.commandRouter.servicePushState(self.state, self.serviceName);
 			self.timer = new MTimer(self.setMetadata.bind(self), [self.api], 1);
-		});
+		});*/
 	/*return self.mpdPlugin.resume().then(function () {
 		return self.mpdPlugin.getState().then(function (state) {
 
