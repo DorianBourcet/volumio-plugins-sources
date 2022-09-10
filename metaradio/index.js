@@ -18,7 +18,6 @@ function ControllerMetaradio(context) {
 	self.configManager = this.context.configManager;
 	self.name = 'Metaradio';
 	self.serviceName = 'metaradio';
-	self.state = {};
 	self.timer = null;
 	self.scraper = null;
 	self.api = null;
@@ -151,8 +150,7 @@ ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
 // Define a method to clear, add, and play an array of tracks
 ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 	var self = this;
-  self.currentTrack = track;
-	self.logger.verbose('CLEAR_ADD_TRACK '+JSON.stringify(track));
+  self.currentTrack = {...track};
 
 	if (self.timer) {
 		self.timer.clear();
@@ -171,29 +169,6 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 			//self.commandRouter.stateMachine.setConsumeUpdateService('mpd');
 
 			return self.mpdPlugin.sendMpdCommand('play', []);
-		})
-		.then(function () {
-			self.state = {
-				status: 'play',
-				service: self.serviceName,
-				type: 'webradio',
-				//trackType: 'aac',
-				//radioType: 'fip',
-				albumart: track.albumart,
-				uri: track.uri,
-				name: track.name,
-				//title: metadata.title,
-				//artist: metadata.artist,
-				//album: metadata.album,
-				streaming: true,
-				disableUiControls: true,
-				//duration: 20,
-				seek: 0,
-				//samplerate: '44.1 KHz',
-				//bitdepth: '16 bit',
-				//channels: 2
-			};
-			self.logger.verbose('SAVED_SELF_STATE '+JSON.stringify(self.state));
 		})
 		.then(function () {
 			return self.mpdPlugin.getState().then(function (state) {
@@ -235,10 +210,11 @@ ControllerMetaradio.prototype.stop = function() {
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::stop');
 
 	return self.mpdPlugin.sendMpdCommand('stop', [])
-		.then(function () {
-			self.state.status = 'stop';
-			self.commandRouter.servicePushState(self.state, self.serviceName);
+	.then(function () {
+		return self.mpdPlugin.getState().then(function (state) {
+			return self.commandRouter.servicePushState(state, self.serviceName);
 		});
+	})
 	/*return self.mpdPlugin.stop().then(function () {
 		return self.mpdPlugin.getState().then(function (state) {
 				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
@@ -264,12 +240,12 @@ ControllerMetaradio.prototype.pause = function() {
 			vState.duration = 0;
 			queueItem.duration = 0;
 
-			vState.albumart = self.state.albumart;
-			queueItem.albumart = self.state.albumart;
-			self.logger.verbose('SELF_STATE '+self.state.albumart);
+			self.logger.verbose('PAUSE_TRACK '+JSON.stringify(self.currentTrack));
+			vState.albumart = self.currentTrack.albumart;
+			queueItem.albumart = self.currentTrack.albumart;
 
-			vState.name =  self.state.name;
-			queueItem.name =  self.state.name;
+			vState.name =  self.currentTrack.name;
+			queueItem.name =  self.currentTrack.name;
 			vState.artist =  null;
 			queueItem.artist =  null;
 			vState.album = null;
@@ -306,37 +282,7 @@ ControllerMetaradio.prototype.resume = function () {
 
 	return self.mpdPlugin.sendMpdCommand('play', [])
 		.then(function () {
-			self.state = {
-				status: 'play',
-				service: self.serviceName,
-				type: 'webradio',
-				//trackType: 'aac',
-				//radioType: 'fip',
-				albumart: self.currentTrack.albumart,
-				uri: self.currentTrack.uri,
-				name: self.currentTrack.name,
-				//title: metadata.title,
-				//artist: metadata.artist,
-				//album: metadata.album,
-				streaming: true,
-				disableUiControls: true,
-				//duration: 20,
-				seek: 0,
-				//samplerate: '44.1 KHz',
-				//bitdepth: '16 bit',
-				//channels: 2
-			};
-			self.logger.verbose('SAVED_SELF_STATE '+JSON.stringify(self.state));
-		})
-		.then(function () {
 			return self.mpdPlugin.getState().then(function (state) {
-				var vState = self.commandRouter.stateMachine.getState();
-				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-				queueItem.name = self.currentTrack.title;
-				queueItem.trackType = self.currentTrack.title;
-				vState.trackType = self.currentTrack.title;
-				self.stationName = self.currentTrack.title;
-				//self.commandRouter.servicePushState(vState, self.serviceName);
 				return self.commandRouter.servicePushState(state, self.serviceName);
 			});
 		})
@@ -350,40 +296,6 @@ ControllerMetaradio.prototype.resume = function () {
 		.fail(function (e) {
 			return libQ.reject(new Error());
 		});
-
-	/*return self.mpdPlugin.sendMpdCommand('play', [])
-		.then(function () {
-			self.mpdPlugin.getState().then(function (state) {
-				var vState = self.commandRouter.stateMachine.getState();
-				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-				queueItem.name = track.title;
-				queueItem.trackType = track.title;
-				vState.trackType = track.title;
-				self.stationName = track.title;
-        vState.status = 'play';
-        queueItem.status = 'play';
-				self.commandRouter.servicePushState(self.state, self.serviceName);
-			});
-			// adapt play status and update state machine
-			//self.state.status = 'play';
-			//self.commandRouter.servicePushState(self.state, self.serviceName);
-			self.timer = new MTimer(self.setMetadata.bind(self), [self.api], 1);
-		});*/
-	/*return self.mpdPlugin.resume().then(function () {
-		return self.mpdPlugin.getState().then(function (state) {
-
-			self.commandRouter.stateMachine.syncState(state, self.serviceName);
-			if (self.state.station === 'kbs') {
-				self.setRadioMetaInfo(
-					self.state.station,
-					self.state.channel,
-					self.state.programCode,
-					self.state.metaUrl,
-					true
-				);
-			}
-		});
-	});*/
 };
 
 
@@ -597,57 +509,6 @@ ControllerMetaradio.prototype.setMetadata = function (url) {
 			self.timer = new MTimer(self.setMetadata.bind(self), [url], result.endTime - Date.now()/1000);
 		});
 }
-
-ControllerMetaradio.prototype.pushSongState = function (metadata) {
-	var self = this;
-	self.logger.verbose('METADATA_FETCHED '+JSON.stringify(metadata));
-	self.state = {
-		status: 'play',
-		service: self.serviceName,
-		type: 'webradio',
-		trackType: 'aac',
-		radioType: 'fip',
-		albumart: metadata.cover,
-		uri: 'http://direct.fipradio.fr/live/fip-hifi.aac', // TODO
-		name: 'France Inter Paris',
-		title: metadata.title,
-		artist: metadata.artist,
-		album: metadata.album,
-		streaming: true,
-		disableUiControls: true,
-		duration: 20,
-		seek: 0,
-		//samplerate: '44.1 KHz',
-		//bitdepth: '16 bit',
-		//channels: 2
-	};
-	self.logger.verbose('PUSH_SONG '+JSON.stringify(self.state));
-	
-	//workaround to allow state to be pushed when not in a volatile state
-	var vState = self.commandRouter.stateMachine.getState();
-	var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-
-	queueItem.name =  metadata.title;
-	queueItem.artist =  metadata.artist;
-	queueItem.album = metadata.album;
-	queueItem.albumart = metadata.cover;
-	queueItem.trackType = 'FIP';
-	queueItem.duration = 20;
-	//queueItem.samplerate = '44.1 KHz';
-	//queueItem.bitdepth = '16 bit';
-	//queueItem.channels = 2;
-	
-	//reset volumio internal timer
-	self.commandRouter.stateMachine.currentSeek = 0;
-	self.commandRouter.stateMachine.playbackStart=Date.now();
-	self.commandRouter.stateMachine.currentSongDuration=20/*metadata.time*/;
-	self.commandRouter.stateMachine.askedForPrefetch=false;
-	self.commandRouter.stateMachine.prefetchDone=false;
-	self.commandRouter.stateMachine.simulateStopStartDone=false;
-
-	//volumio push state
-	self.commandRouter.servicePushState(self.state, self.serviceName);
-};
 
 function MTimer(callback, args, delay) {
 	var remaining = delay;
