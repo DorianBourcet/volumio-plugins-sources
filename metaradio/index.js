@@ -20,8 +20,6 @@ function ControllerMetaradio(context) {
 	self.serviceName = 'metaradio';
 	self.timer = null;
 	self.scraper = null;
-	self.api = null;
-	self.stationName = null;
 	self.latestTitleInfo = null;
 	self.titleInfoAttempt = 0;
   self.currentTrack = {};
@@ -174,17 +172,18 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 			return self.mpdPlugin.getState().then(function (state) {
 				var vState = self.commandRouter.stateMachine.getState();
 				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-				queueItem.name = track.title;
-				queueItem.trackType = track.title;
-				vState.trackType = track.title;
-				self.stationName = track.title;
+				queueItem.name = track.name;
+				queueItem.trackType = track.name;
+				vState.trackType = track.name;
+				/*queueItem.bitrate = state.bitrate;
+				queueItem.samplerate = state.samplerate+' kHz';
+    		queueItem.bitdepth = state.bitdepth;*/
 				//self.commandRouter.servicePushState(vState, self.serviceName);
 				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
 			});
 		})
 		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
-			self.api = track.api;
 			self.timer = new MTimer(self.setMetadata.bind(self), [track.api], 1);
 			//return self.setMetadata(track.api);
 	
@@ -263,11 +262,6 @@ ControllerMetaradio.prototype.pause = function() {
 
 			self.commandRouter.servicePushState(vState, self.serviceName);
     });
-	/*return self.mpdPlugin.pause().then(function () {
-		return self.mpdPlugin.getState().then(function (state) {
-				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
-		});
-	});*/
 };
 
 // Resume
@@ -288,9 +282,7 @@ ControllerMetaradio.prototype.resume = function () {
 		})
 		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + self.currentTrack.scraper))();
-			self.api = self.currentTrack.api;
-			self.timer = new MTimer(self.setMetadata.bind(self), [self.currentTrack.api], 1);
-			//return self.setMetadata(track.api);
+			self.setMetadata(self.currentTrack.api);
 	
 		})
 		.fail(function (e) {
@@ -494,8 +486,8 @@ ControllerMetaradio.prototype.setMetadata = function (url) {
 			vState.album = result.album;
 			queueItem.album = result.album;
 
-			//queueItem.trackType = 'F I P';
-			//vState.trackType = self.stationName;
+			queueItem.trackType = self.currentTrack.name;
+			vState.trackType = self.currentTrack.name;
 
 			self.commandRouter.stateMachine.currentSeek = seek;  // reset Volumio timer
 			self.commandRouter.stateMachine.playbackStart=result.startTime;
