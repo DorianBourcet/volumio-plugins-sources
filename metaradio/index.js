@@ -21,6 +21,7 @@ function ControllerMetaradio(context) {
 	self.state = {};
 	self.timer = null;
 	self.scraper = null;
+	self.api = null;
 	self.stationName = null;
 	self.latestTitleInfo = null;
 	self.titleInfoAttempt = 0;
@@ -149,6 +150,7 @@ ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
 // Define a method to clear, add, and play an array of tracks
 ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 	var self = this;
+	//self.logger.verbose('CLEAR_ADD_TRACK '+JSON.stringify(track));
 
 	if (self.timer) {
 		self.timer.clear();
@@ -169,6 +171,29 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 			return self.mpdPlugin.sendMpdCommand('play', []);
 		})
 		.then(function () {
+			self.state = {
+				status: 'play',
+				service: self.serviceName,
+				type: 'webradio',
+				//trackType: 'aac',
+				//radioType: 'fip',
+				albumart: track.albumart,
+				uri: track.uri,
+				name: track.name,
+				//title: metadata.title,
+				//artist: metadata.artist,
+				//album: metadata.album,
+				streaming: true,
+				disableUiControls: true,
+				//duration: 20,
+				seek: 0,
+				//samplerate: '44.1 KHz',
+				//bitdepth: '16 bit',
+				//channels: 2
+			};
+			self.logger.verbose('SAVED_SELF_STATE '+JSON.stringify(self.state));
+		})
+		.then(function () {
 			return self.mpdPlugin.getState().then(function (state) {
 				var vState = self.commandRouter.stateMachine.getState();
 				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
@@ -182,6 +207,7 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 		})
 		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
+			self.api = track.api;
 			self.timer = new MTimer(self.setMetadata.bind(self), [track.api], 1);
 			//return self.setMetadata(track.api);
 	
@@ -226,34 +252,71 @@ ControllerMetaradio.prototype.pause = function() {
 		self.timer.clear();
 	}
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::pause');
-	/*return self.mpdPlugin.sendMpdCommand('pause', [1])
+	return self.mpdPlugin.sendMpdCommand('pause', [1])
     .then(function () {
-        var vState = self.commandRouter.stateMachine.getState();
-        self.state.status = 'pause';
-        self.state.seek = vState.seek;
-        self.commandRouter.servicePushState(self.state, self.serviceName);
-    });*/
-	return self.mpdPlugin.pause().then(function () {
+			var vState = self.commandRouter.stateMachine.getState();
+			var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
+			vState.seek = 0;
+			vState.disableUiControls = true;
+
+			vState.duration = 0;
+			queueItem.duration = 0;
+
+			vState.albumart = self.state.albumart;
+			queueItem.albumart = self.state.albumart;
+			self.logger.verbose('SELF_STATE '+self.state.albumart);
+
+			vState.name =  self.state.name;
+			queueItem.name =  self.state.name;
+			vState.artist =  null;
+			queueItem.artist =  null;
+			vState.album = null;
+			queueItem.album = null;
+
+			//queueItem.trackType = 'F I P';
+			//vState.trackType = self.stationName;
+
+			self.commandRouter.stateMachine.currentSeek = 0;  // reset Volumio timer
+			//self.commandRouter.stateMachine.playbackStart=result.startTime;
+			self.commandRouter.stateMachine.currentSongDuration=0;
+			self.commandRouter.stateMachine.askedForPrefetch=false;
+			self.commandRouter.stateMachine.prefetchDone=false;
+			self.commandRouter.stateMachine.simulateStopStartDone=false;
+
+			self.commandRouter.servicePushState(vState, self.serviceName);
+    });
+	/*return self.mpdPlugin.pause().then(function () {
 		return self.mpdPlugin.getState().then(function (state) {
 				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
 		});
-	});
+	});*/
 };
 
 // Resume
 ControllerMetaradio.prototype.resume = function () {
 	var self = this;
 
-	/*return self.mpdPlugin.sendMpdCommand('play', [])
+	return self.mpdPlugin.sendMpdCommand('play', [])
 		.then(function () {
+			self.mpdPlugin.getState().then(function (state) {
+				var vState = self.commandRouter.stateMachine.getState();
+				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
+				queueItem.name = track.title;
+				queueItem.trackType = track.title;
+				vState.trackType = track.title;
+				self.stationName = track.title;
+				//self.commandRouter.servicePushState(vState, self.serviceName);
+				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
+			});
 			// adapt play status and update state machine
-			self.state.status = 'play';
-			self.commandRouter.servicePushState(self.state, self.serviceName);
-		});*/
-	return self.mpdPlugin.resume().then(function () {
+			//self.state.status = 'play';
+			//self.commandRouter.servicePushState(self.state, self.serviceName);
+			self.timer = new MTimer(self.setMetadata.bind(self), [self.api], 1);
+		});
+	/*return self.mpdPlugin.resume().then(function () {
 		return self.mpdPlugin.getState().then(function (state) {
 
-			/*self.commandRouter.stateMachine.syncState(state, self.serviceName);
+			self.commandRouter.stateMachine.syncState(state, self.serviceName);
 			if (self.state.station === 'kbs') {
 				self.setRadioMetaInfo(
 					self.state.station,
@@ -262,9 +325,9 @@ ControllerMetaradio.prototype.resume = function () {
 					self.state.metaUrl,
 					true
 				);
-			}*/
+			}
 		});
-	});
+	});*/
 };
 
 
