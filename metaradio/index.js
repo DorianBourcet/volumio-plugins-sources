@@ -429,14 +429,20 @@ ControllerMetaradio.prototype.getRadioI18nString = function (key) {
 ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
 	var self = this;
 
+	let scraped = {...metadata};
 	let now = Math.floor(Date.now() / 1000);
-	var initial = {
-		startTime: now,
-	};
-	if ('endTime' in metadata === false) {
-		initial.endTime = self.computeEndTime(metadata);
+
+	if ('startTime' in scraped === false || scraped.startTime === null || scraped.startTime > now) {
+		scraped.startTime = now;
 	}
-	return { ...initial, ...metadata};
+	if ('endTime' in scraped === false || scraped.endTime === null || scraped.endTime < now) {
+		scraped.endTime = self.computeEndTime(scraped);
+	}
+	if ('cover' in scraped === false || scraped.cover === null) {
+		scraped.cover = self.currentTrack.albumart;
+	}
+
+	return scraped;
 }
 
 ControllerMetaradio.prototype.computeEndTime = function (metadata) {
@@ -461,11 +467,10 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 
 ControllerMetaradio.prototype.setMetadata = function (url) {
 	var self = this;
-	self.logger.verbose('CALLED_SET_METADATA');
 	return self.scraper.getMetadata(url)
 		.then(function (result) {
+			self.logger.verbose('API_RESULT '+JSON.stringify(result));
 			result = self.hydrateMetadata(result);
-			self.logger.verbose('GOT_RESULTS '+JSON.stringify(result));
 			var duration = result.endTime - result.startTime;
 			var seek = Date.now() - result.startTime * 1000;
 			var vState = self.commandRouter.stateMachine.getState();

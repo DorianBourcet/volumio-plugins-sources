@@ -13,12 +13,12 @@ class RadioFranceScraper extends BaseScraper {
         }
       })
       .then(function (metadata) {
-        var [title] = jp.query(metadata, '$.now.firstLine.title');
-        var [artist] = jp.query(metadata, '$.now.secondLine.title');
+        var [title] = jp.query(metadata, '$.now.firstLine');
+        var [artist] = jp.query(metadata, '$.now.secondLine');
         var [album] = jp.query(metadata, '$.now.song.release.title');
-        var [cover] = jp.query(metadata, '$.now.visuals.card.webpSrc');
-        var [startTime] = jp.query(metadata, '$.now.startTime');
-        var [endTime] = jp.query(metadata, '$.now.endTime');
+        var [cover] = jp.query(metadata, '$.now.cover.webpSrc');
+        var [startTime] = jp.query(metadata, '$.media.startTime');
+        var [endTime] = jp.query(metadata, '$.media.endTime');
 
         return {
           title,
