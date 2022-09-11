@@ -43,7 +43,7 @@
         "uri": "webfip/3",
         "url": "http://icecast.radiofrance.fr/fipgroove-hifi.aac",
         "logo": "fip_groove.webp",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip_jazz",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip_groove",
         "scraper": "radio_france"
       },
       {
