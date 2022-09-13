@@ -431,15 +431,20 @@ ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
 
 	let scraped = {...metadata};
 	let now = Math.floor(Date.now() / 1000);
+	let extraDelay = 5;
 
 	if ('startTime' in scraped === false || scraped.startTime === null || scraped.startTime > now) {
 		scraped.startTime = now;
 	}
 	if ('endTime' in scraped === false || scraped.endTime === null || scraped.endTime < now) {
 		scraped.endTime = self.computeEndTime(scraped);
+		extraDelay = 0;
 	}
 	if ('cover' in scraped === false || scraped.cover === null) {
 		scraped.cover = self.currentTrack.albumart;
+	}
+	if ('delayToRefresh' in scraped === false || scraped.delayToRefresh === null || scraped.delayToRefresh < 20) {
+		scraped.delayToRefresh = scraped.endTime - now + extraDelay;
 	}
 
 	return scraped;
@@ -503,7 +508,7 @@ ControllerMetaradio.prototype.setMetadata = function (url) {
 
 			self.commandRouter.servicePushState(vState, self.serviceName);
 
-			self.timer = new MTimer(self.setMetadata.bind(self), [url], result.endTime - Date.now()/1000);
+			self.timer = new MTimer(self.setMetadata.bind(self), [url], result.delayToRefresh);
 		});
 }
 
