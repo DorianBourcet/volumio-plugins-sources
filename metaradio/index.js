@@ -123,7 +123,13 @@ ControllerMetaradio.prototype.addToBrowseSources = function () {
 
 	// Use this function to add your music service plugin to music sources
 	var self = this;
-  var data = {name: self.name, uri: self.serviceName, plugin_type: 'music_service', plugin_name: self.serviceName};
+  var data = {
+		name: self.name,
+		uri: self.serviceName,
+		plugin_type: 'music_service',
+		plugin_name: self.serviceName,
+		albumart: '/albumart?sourceicon=music_service/metaradio/metaradio.svg'
+	};
 
   this.commandRouter.volumioAddToBrowseSources(data);
 };
