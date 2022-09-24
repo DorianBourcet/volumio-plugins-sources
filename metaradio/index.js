@@ -190,7 +190,7 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 		})
 		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
-			self.timer = new MTimer(self.setMetadata.bind(self), [track.api], 1);
+			self.timer = new MTimer(self.setMetadata.bind(self), [], 1);
 			//return self.setMetadata(track.api);
 	
 		})
@@ -288,7 +288,7 @@ ControllerMetaradio.prototype.resume = function () {
 		})
 		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + self.currentTrack.scraper))();
-			self.setMetadata(self.currentTrack.api);
+			self.setMetadata();
 	
 		})
 		.fail(function (e) {
@@ -476,9 +476,9 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 	return now + 20;
 }
 
-ControllerMetaradio.prototype.setMetadata = function (url) {
+ControllerMetaradio.prototype.setMetadata = function () {
 	var self = this;
-	return self.scraper.getMetadata(url)
+	return self.scraper.getMetadata(self.currentTrack.api)
 		.then(function (result) {
 			self.logger.verbose('API_RESULT '+JSON.stringify(result));
 			result = self.hydrateMetadata(result);
@@ -514,7 +514,7 @@ ControllerMetaradio.prototype.setMetadata = function (url) {
 
 			self.commandRouter.servicePushState(vState, self.serviceName);
 
-			self.timer = new MTimer(self.setMetadata.bind(self), [url], result.delayToRefresh);
+			self.timer = new MTimer(self.setMetadata.bind(self), [], result.delayToRefresh);
 		});
 }
 
