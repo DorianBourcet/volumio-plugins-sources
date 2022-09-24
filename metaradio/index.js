@@ -535,9 +535,11 @@ function MTimer(callback, args, delay) {
   };
 
 	MTimer.prototype.callIt = function () {
-		remaining = theCallback(); //TODO
-		this.clear();
-		this.start();
+		theCallback().then(function (delay) {
+			remaining = delay;
+			this.clear();
+			this.start();
+		});
 	}
 
   this.start();
