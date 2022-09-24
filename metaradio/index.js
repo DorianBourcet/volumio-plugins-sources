@@ -514,23 +514,31 @@ ControllerMetaradio.prototype.setMetadata = function () {
 
 			self.commandRouter.servicePushState(vState, self.serviceName);
 
-			self.timer = new MTimer(self.setMetadata.bind(self), [], result.delayToRefresh);
+			//self.timer = new MTimer(self.setMetadata.bind(self), [], result.delayToRefresh);
+			return result.delayToRefresh;
 		});
 }
 
 function MTimer(callback, args, delay) {
 	var remaining = delay;
-
   var nanoTimer = new NanoTimer();
+	var theCallback = callback;
+	var theArgs = args;
 
   MTimer.prototype.start = function () {
     nanoTimer.clearTimeout();
-    nanoTimer.setTimeout(callback, args, remaining + 's');
+    nanoTimer.setTimeout(this.callIt.bind(this), args, remaining + 's');
   };
 
   MTimer.prototype.clear = function () {
     nanoTimer.clearTimeout();
   };
+
+	MTimer.prototype.callIt = function () {
+		remaining = theCallback(); //TODO
+		this.clear();
+		this.start();
+	}
 
   this.start();
 };
