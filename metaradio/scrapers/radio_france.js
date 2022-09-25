@@ -19,7 +19,7 @@ class RadioFranceScraper extends BaseScraper {
         var [cover] = jp.query(metadata, '$.now.cover.webpSrc');
         var [startTime] = jp.query(metadata, '$.media.startTime');
         var [endTime] = jp.query(metadata, '$.media.endTime');
-        var [rawDelayToRefresh] = jp.query(metadata, '$.delayToRefresh');
+        var [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
 
         let scraped = {
           title,
@@ -29,8 +29,8 @@ class RadioFranceScraper extends BaseScraper {
           startTime,
           endTime,
         };
-        if (rawDelayToRefresh !== null) {
-          scraped.delayToRefresh = Math.floor(rawDelayToRefresh / 1000);
+        if (delayToRefresh !== null) {
+          scraped.expiresAt = Math.floor(delayToRefresh / 1000) + Math.floor(Date.now() / 1000);
         }
 
         return scraped;

@@ -23,6 +23,7 @@ function ControllerMetaradio(context) {
 	self.latestTitleInfo = null;
 	self.titleInfoAttempt = 0;
   self.currentTrack = {};
+	self.cachedMetadata = {};
 }
 
 ControllerMetaradio.prototype.onVolumioStart = function()
@@ -190,7 +191,7 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 		})
 		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
-			self.timer = new MTimer(self.setMetadata.bind(self), [], 1);
+			self.timer = new MTimer(self.setMetadata.bind(self), [], 10);
 			//return self.setMetadata(track.api);
 	
 		})
@@ -449,8 +450,8 @@ ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
 	if ('cover' in scraped === false || scraped.cover === null) {
 		scraped.cover = self.currentTrack.albumart;
 	}
-	if ('delayToRefresh' in scraped === false || scraped.delayToRefresh === null || scraped.delayToRefresh < 20) {
-		scraped.delayToRefresh = scraped.endTime - now + extraDelay;
+	if ('expiresAt' in scraped === false || scraped.expiresAt === null || scraped.expiresAt < now) {
+		scraped.expiresAt = scraped.endTime - now + extraDelay;
 	}
 
 	return scraped;
@@ -478,12 +479,15 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 
 ControllerMetaradio.prototype.setMetadata = function () {
 	var self = this;
+	if (self.cachedMetadata.expiresAt > Math.floor(Date.now() / 1000)) {
+		return;
+	}
 	return self.scraper.getMetadata(self.currentTrack.api)
 		.then(function (result) {
 			self.logger.verbose('API_RESULT '+JSON.stringify(result));
-			result = self.hydrateMetadata(result);
-			var duration = result.endTime - result.startTime;
-			var seek = Date.now() - result.startTime * 1000;
+			self.cachedMetadata = self.hydrateMetadata(result);
+			var duration = self.cachedMetadata.endTime - self.cachedMetadata.startTime;
+			var seek = Date.now() - self.cachedMetadata.startTime * 1000;
 			var vState = self.commandRouter.stateMachine.getState();
 			var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
 			vState.seek = seek;
@@ -492,21 +496,21 @@ ControllerMetaradio.prototype.setMetadata = function () {
 			vState.duration = duration;
 			queueItem.duration = duration;
 
-			vState.albumart = result.cover;
-			queueItem.albumart = result.cover;
+			vState.albumart = self.cachedMetadata.cover;
+			queueItem.albumart = self.cachedMetadata.cover;
 
-			vState.name =  result.title;
-			queueItem.name =  result.title;
-			vState.artist =  result.artist;
-			queueItem.artist =  result.artist;
-			vState.album = result.album;
-			queueItem.album = result.album;
+			vState.name =  self.cachedMetadata.title;
+			queueItem.name =  self.cachedMetadata.title;
+			vState.artist =  self.cachedMetadata.artist;
+			queueItem.artist =  self.cachedMetadata.artist;
+			vState.album = self.cachedMetadata.album;
+			queueItem.album = self.cachedMetadata.album;
 
 			queueItem.trackType = self.currentTrack.name;
 			vState.trackType = self.currentTrack.name;
 
 			self.commandRouter.stateMachine.currentSeek = seek;  // reset Volumio timer
-			self.commandRouter.stateMachine.playbackStart=result.startTime;
+			self.commandRouter.stateMachine.playbackStart=self.cachedMetadata.startTime;
 			self.commandRouter.stateMachine.currentSongDuration=duration;
 			self.commandRouter.stateMachine.askedForPrefetch=false;
 			self.commandRouter.stateMachine.prefetchDone=false;
@@ -514,7 +518,7 @@ ControllerMetaradio.prototype.setMetadata = function () {
 
 			self.commandRouter.servicePushState(vState, self.serviceName);
 
-			self.timer = new MTimer(self.setMetadata.bind(self), [], result.delayToRefresh);
+			//self.timer = new MTimer(self.setMetadata.bind(self), [], result.delayToRefresh);
 		});
 }
 
@@ -524,12 +528,12 @@ function MTimer(callback, args, delay) {
   var nanoTimer = new NanoTimer();
 
   MTimer.prototype.start = function () {
-    nanoTimer.clearTimeout();
-    nanoTimer.setTimeout(callback, args, remaining + 's');
+    nanoTimer.clearInterval();
+    nanoTimer.setInterval(callback, args, remaining + 's');
   };
 
   MTimer.prototype.clear = function () {
-    nanoTimer.clearTimeout();
+    nanoTimer.clearInterval();
   };
 
   this.start();
