@@ -164,6 +164,24 @@
         "api": "https://tracklist-api.kcrw.com/Music",
         "scraper": "kcrw"
       }
+    ],
+    "francemusique": [
+      {
+        "title": "France Musique",
+        "uri": "webfrancemusique/0",
+        "url": "http://icecast.radiofrance.fr/francemusique-hifi.aac",
+        "logo": "france_musique.svg",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique Opéra",
+        "uri": "webfrancemusique/1",
+        "url": "https://icecast.radiofrance.fr/francemusiqueopera-hifi.aac",
+        "logo": "france_musique_opera.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_opera",
+        "scraper": "radio_france"
+      }
     ]
   }
 }
