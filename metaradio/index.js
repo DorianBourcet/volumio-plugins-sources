@@ -6,6 +6,8 @@ const NanoTimer = require('nanotimer');
 var config = new (require('v-conf'))();
 var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
+var cacheManager = require('cache-manager');
+var memoryCache = cacheManager.caching({store: 'memory', max: 100, ttl: 180});
 
 module.exports = ControllerMetaradio;
 
@@ -476,12 +478,27 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 	return now + 20;
 }
 
+ControllerMetaradio.prototype.getCachedMetadata = function () {
+	var self = this;
+	var opts = {
+		ttl: function(metadata) {
+			return metadata.delayToRefresh;
+		}
+	};
+	return memoryCache.get(self.currentTrack.name, function () {
+		return self.scraper.getMetadata(self.currentTrack.api)
+			.then(function (result) {
+				return self.hydrateMetadata(result);
+			})
+	}, opts);
+}
+
 ControllerMetaradio.prototype.setMetadata = function () {
 	var self = this;
-	return self.scraper.getMetadata(self.currentTrack.api)
+	return self.getCachedMetadata()
 		.then(function (result) {
 			self.logger.verbose('API_RESULT '+JSON.stringify(result));
-			result = self.hydrateMetadata(result);
+			//result = self.hydrateMetadata(result);
 			var duration = result.endTime - result.startTime;
 			var seek = Date.now() - result.startTime * 1000;
 			var vState = self.commandRouter.stateMachine.getState();
