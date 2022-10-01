@@ -134,7 +134,7 @@
         "title": "Nova Danse",
         "uri": "webradionova/2",
         "url": "http://nova-dance.ice.infomaniak.ch/nova-dance-256.aac",
-        "logo": "radio_nova.jpg",
+        "logo": "nova_danse.jpg",
         "api": "https://www.nova.fr/wp-json/radios/nova-danse",
         "scraper": "radio_nova"
       },
@@ -142,7 +142,7 @@
         "title": "Nova la Nuit",
         "uri": "webradionova/3",
         "url": "http://nova-ln.ice.infomaniak.ch/nova-ln-256.aac",
-        "logo": "radio_nova.jpg",
+        "logo": "nova_la_nuit.jpg",
         "api": "https://www.nova.fr/wp-json/radios/nova-la-nuit",
         "scraper": "radio_nova"
       },
@@ -150,7 +150,7 @@
         "title": "Nova Classics",
         "uri": "webradionova/4",
         "url": "http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac",
-        "logo": "nova_classics.png",
+        "logo": "nova_classics.jpg",
         "api": "https://www.nova.fr/wp-json/radios/nova-classics",
         "scraper": "radio_nova"
       }
@@ -175,8 +175,16 @@
         "scraper": "radio_france"
       },
       {
-        "title": "France Musique Opéra",
+        "title": "France Musique Classique Easy",
         "uri": "webfrancemusique/1",
+        "url": "http://icecast.radiofrance.fr/francemusiqueeasyclassique-hifi.aac",
+        "logo": "france_musique_classique_easy.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_classique_easy",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique Opéra",
+        "uri": "webfrancemusique/2",
         "url": "https://icecast.radiofrance.fr/francemusiqueopera-hifi.aac",
         "logo": "france_musique_opera.webp",
         "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_opera",
