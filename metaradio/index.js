@@ -6,6 +6,8 @@ const NanoTimer = require('nanotimer');
 var config = new (require('v-conf'))();
 var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
+var test = require('./helpers/foo');
+var Timer = require('./helpers/timer');
 
 module.exports = ControllerMetaradio;
 
@@ -190,7 +192,8 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 		})
 		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
-			self.timer = new MTimer(self.setMetadata.bind(self), [], 1);
+			self.timer = new Timer(self.setMetadata.bind(self), function(result) {return result*1000;}, 1000);
+			self.timer.start();
 			//return self.setMetadata(track.api);
 	
 		})
@@ -210,7 +213,7 @@ ControllerMetaradio.prototype.stop = function() {
 	var self = this;
 
 	if (self.timer) {
-		self.timer.clear();
+		self.timer.stop();
 	}
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::stop');
 
@@ -232,7 +235,7 @@ ControllerMetaradio.prototype.pause = function() {
 	var self = this;
 
 	if (self.timer) {
-		self.timer.clear();
+		self.timer.stop();
 	}
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::pause');
 	return self.mpdPlugin.sendMpdCommand('pause', [1])
@@ -275,7 +278,7 @@ ControllerMetaradio.prototype.resume = function () {
 	var self = this;
 
 	if (self.timer) {
-		self.timer.clear();
+		self.timer.start();
 	}
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::resume');
 	self.commandRouter.logger.info(JSON.stringify(self.currentTrack));
@@ -514,7 +517,8 @@ ControllerMetaradio.prototype.setMetadata = function () {
 
 			self.commandRouter.servicePushState(vState, self.serviceName);
 
-			self.timer = new MTimer(self.setMetadata.bind(self), [], result.delayToRefresh);
+			//self.timer = new MTimer(self.setMetadata.bind(self), [], result.delayToRefresh);
+			return result.delayToRefresh;
 		});
 }
 
