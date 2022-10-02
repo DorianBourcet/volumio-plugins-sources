@@ -159,7 +159,7 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
   self.currentTrack = {...track};
 
 	if (self.timer) {
-		self.timer.clear();
+		self.timer.stop();
 	}
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::clearAddPlayTrack');
 	self.commandRouter.logger.info(JSON.stringify(track));
@@ -335,7 +335,7 @@ ControllerMetaradio.prototype.explodeUri = function(uri) {
 	var station = uris[0].substring(3);
 
 	if (self.timer) {
-		self.timer.clear();
+		self.timer.stop();
 	}
 	response.push({
 		service: self.serviceName,
