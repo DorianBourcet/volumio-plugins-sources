@@ -17,6 +17,7 @@ function Timer(taskFn, delayFn, initialDelay) {
 
   self.executeTask = function() {
     var self = this;
+    console.log('TIMER_TICK');
     self.taskFn().then(function(result) {
       self.latestDelay = delayFn(result);
       self.timeoutObj = setTimeout(

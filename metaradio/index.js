@@ -8,6 +8,7 @@ var exec = require('child_process').exec;
 var execSync = require('child_process').execSync;
 var test = require('./helpers/foo');
 var Timer = require('./helpers/timer');
+var Cache = require('./helpers/cache');
 
 module.exports = ControllerMetaradio;
 
@@ -25,6 +26,7 @@ function ControllerMetaradio(context) {
 	self.latestTitleInfo = null;
 	self.titleInfoAttempt = 0;
   self.currentTrack = {};
+	self.cache = new Cache();
 }
 
 ControllerMetaradio.prototype.onVolumioStart = function()
@@ -181,8 +183,8 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 				var vState = self.commandRouter.stateMachine.getState();
 				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
 				queueItem.name = track.name;
-				queueItem.trackType = track.name;
-				vState.trackType = track.name;
+				//queueItem.trackType = track.name;
+				//vState.trackType = track.name;
 				/*queueItem.bitrate = state.bitrate;
 				queueItem.samplerate = state.samplerate+' kHz';
     		queueItem.bitdepth = state.bitdepth;*/
@@ -337,9 +339,11 @@ ControllerMetaradio.prototype.explodeUri = function(uri) {
 	if (self.timer) {
 		self.timer.stop();
 	}
+	let id = self.radioStations[station][channel].uri.replace(/[^a-zA-Z0-9]/g, '');
 	response.push({
 		service: self.serviceName,
 		type: 'track',
+		id: id,
 		albumart: '/albumart?sourceicon=music_service/'+self.serviceName+'/logos/'+self.radioStations[station][channel].logo,
 		uri: self.radioStations[station][channel].url,
 		name: self.radioStations[station][channel].title,
@@ -479,12 +483,35 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 	return now + 20;
 }
 
+ControllerMetaradio.prototype.getMetadata = function () {
+	var self = this;
+	var defer = libQ.defer();
+	let key = self.currentTrack.id;
+	self.logger.verbose('RADIO_KEY '+JSON.stringify(key));
+	let cachedMetadata = self.cache.get(key);
+	if (cachedMetadata === undefined) {
+		self.scraper.getMetadata(self.currentTrack.api)
+			.then(function (result) {
+				result = self.hydrateMetadata(result);
+				self.logger.verbose('METADATA_SOURCE api');
+				self.logger.verbose('API_RESULT '+JSON.stringify(result));
+				self.cache.set(key, result, result.delayToRefresh);
+
+				defer.resolve(result);
+			});
+	} else {
+		self.logger.verbose('METADATA_SOURCE cache');
+		self.logger.verbose('CACHE_RESULT '+JSON.stringify(cachedMetadata));
+		defer.resolve(cachedMetadata);
+	}
+
+	return defer.promise;
+}
+
 ControllerMetaradio.prototype.setMetadata = function () {
 	var self = this;
-	return self.scraper.getMetadata(self.currentTrack.api)
+	return self.getMetadata()
 		.then(function (result) {
-			self.logger.verbose('API_RESULT '+JSON.stringify(result));
-			result = self.hydrateMetadata(result);
 			var duration = result.endTime - result.startTime;
 			var seek = Date.now() - result.startTime * 1000;
 			var vState = self.commandRouter.stateMachine.getState();
@@ -517,24 +544,20 @@ ControllerMetaradio.prototype.setMetadata = function () {
 
 			self.commandRouter.servicePushState(vState, self.serviceName);
 
-			//self.timer = new MTimer(self.setMetadata.bind(self), [], result.delayToRefresh);
-			return result.delayToRefresh;
+			/*self.mpdPlugin.getState().then(function (state) {
+				var vState = self.commandRouter.stateMachine.getState();
+				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
+				queueItem.name = track.name;
+				//queueItem.trackType = track.name;
+				//vState.trackType = track.name;
+				//queueItem.bitrate = state.bitrate;
+				queueItem.samplerate = state.samplerate+' kHz';
+    		queueItem.bitdepth = state.bitdepth;
+				//self.commandRouter.servicePushState(vState, self.serviceName);
+				self.commandRouter.stateMachine.syncState(state, self.serviceName);
+			});*/
+
+			//return result.delayToRefresh;
+			return 5;
 		});
 }
-
-function MTimer(callback, args, delay) {
-	var remaining = delay;
-
-  var nanoTimer = new NanoTimer();
-
-  MTimer.prototype.start = function () {
-    nanoTimer.clearTimeout();
-    nanoTimer.setTimeout(callback, args, remaining + 's');
-  };
-
-  MTimer.prototype.clear = function () {
-    nanoTimer.clearTimeout();
-  };
-
-  this.start();
-};
