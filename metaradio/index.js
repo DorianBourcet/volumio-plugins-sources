@@ -339,11 +339,10 @@ ControllerMetaradio.prototype.explodeUri = function(uri) {
 	if (self.timer) {
 		self.timer.stop();
 	}
-	let id = self.radioStations[station][channel].uri.replace(/[^a-zA-Z0-9]/g, '');
+	//let id = self.radioStations[station][channel].uri.replace(/[^a-zA-Z0-9]/g, '');
 	response.push({
 		service: self.serviceName,
 		type: 'track',
-		id: id,
 		albumart: '/albumart?sourceicon=music_service/'+self.serviceName+'/logos/'+self.radioStations[station][channel].logo,
 		uri: self.radioStations[station][channel].url,
 		name: self.radioStations[station][channel].title,
@@ -486,7 +485,7 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 ControllerMetaradio.prototype.getMetadata = function () {
 	var self = this;
 	var defer = libQ.defer();
-	let key = self.currentTrack.id;
+	let key = self.currentTrack.uri.replace(/[^a-zA-Z0-9]/g, '');
 	self.logger.verbose('RADIO_KEY '+JSON.stringify(key));
 	let cachedMetadata = self.cache.get(key);
 	if (cachedMetadata === undefined) {
@@ -532,8 +531,8 @@ ControllerMetaradio.prototype.setMetadata = function () {
 			vState.album = result.album;
 			queueItem.album = result.album;
 
-			queueItem.trackType = self.currentTrack.name;
-			vState.trackType = self.currentTrack.name;
+			//queueItem.trackType = self.currentTrack.name;
+			//vState.trackType = self.currentTrack.name;
 
 			self.commandRouter.stateMachine.currentSeek = seek;  // reset Volumio timer
 			self.commandRouter.stateMachine.playbackStart=result.startTime;
