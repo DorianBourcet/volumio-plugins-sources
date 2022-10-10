@@ -49,6 +49,7 @@ ControllerMetaradio.prototype.onStart = function() {
 	self.loadRadioI18nStrings();
 	self.addToBrowseSources();
 	self.addRadioResource();
+	self.setVolatile();
 
 	// Once the Plugin has successfull started resolve the promise
 	defer.resolve();
@@ -559,4 +560,27 @@ ControllerMetaradio.prototype.setMetadata = function () {
 			//return result.delayToRefresh;
 			return 5;
 		});
+}
+
+ControllerMetaradio.prototype.setVolatile = function() {
+	if (!this.volatileCallback) {
+		this.volatileCallback = function(){}.bind(this);
+	}
+	if (!this.isCurrentService()) {
+		this.commandRouter.stateMachine.setVolatile({
+			service: this.serviceName,
+			callback: this.volatileCallback
+		});
+		this.mpdPlugin.ignoreUpdate(true);
+		this.commandRouter.stateMachine.setConsumeUpdateService(undefined);
+	}
+}
+
+ControllerMetaradio.prototype.isCurrentService = function() {
+	// Check what is the current Volumio service
+	let currentstate = this.commandRouter.volumioGetState();
+	if (currentstate !== undefined && currentstate.service !== undefined && currentstate.service !== this.serviceName) {
+			return false;
+	}
+	return true;
 }
