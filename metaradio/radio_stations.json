@@ -103,6 +103,88 @@
         "scraper": "radio_france"
       }
     ],
+    "francemusique": [
+      {
+        "title": "France Musique",
+        "uri": "webfrancemusique/0",
+        "url": "http://icecast.radiofrance.fr/francemusique-hifi.aac",
+        "logo": "france_musique.svg",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique Classique Easy",
+        "uri": "webfrancemusique/1",
+        "url": "http://icecast.radiofrance.fr/francemusiqueeasyclassique-hifi.aac",
+        "logo": "france_musique_classique_easy.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_classique_easy",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique Opéra",
+        "uri": "webfrancemusique/2",
+        "url": "https://icecast.radiofrance.fr/francemusiqueopera-hifi.aac",
+        "logo": "france_musique_opera.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_opera",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique La Baroque",
+        "uri": "webfrancemusique/3",
+        "url": "https://icecast.radiofrance.fr/francemusiquebaroque-hifi.aac",
+        "logo": "france_musique_la_baroque.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_baroque",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique Classique Plus",
+        "uri": "webfrancemusique/4",
+        "url": "https://icecast.radiofrance.fr/francemusiqueclassiqueplus-hifi.aac",
+        "logo": "france_musique_classique_plus.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_classique_plus",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique Concerts Radio France",
+        "uri": "webfrancemusique/5",
+        "url": "https://icecast.radiofrance.fr/francemusiqueconcertsradiofrance-hifi.aac",
+        "logo": "france_musique_concerts_radio_france.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_concert_rf",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique La Jazz",
+        "uri": "webfrancemusique/6",
+        "url": "https://icecast.radiofrance.fr/francemusiquelajazz-hifi.aac",
+        "logo": "france_musique_la_jazz.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_la_jazz",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique La Contemporaine",
+        "uri": "webfrancemusique/7",
+        "url": "https://icecast.radiofrance.fr/francemusiquelacontemporaine-hifi.aac",
+        "logo": "france_musique_la_contemporaine.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_la_contemporaine",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique Ocora Musiques du Monde",
+        "uri": "webfrancemusique/8",
+        "url": "https://icecast.radiofrance.fr/francemusiqueocoramonde-hifi.aac",
+        "logo": "france_musique_ocora_monde.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_ocora_monde",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique La B.O. Musiques de Films",
+        "uri": "webfrancemusique/9",
+        "url": "https://icecast.radiofrance.fr/francemusiquelabo-hifi.aac",
+        "logo": "france_musique_la_bo_films.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_evenementielle",
+        "scraper": "radio_france"
+      }
+    ],
     "grrif": [
       {
         "title": "GRRIF",
@@ -111,6 +193,16 @@
         "logo": "grrif.jpg",
         "api": "https://www.grrif.ch/live/covers.json",
         "scraper": "grrif"
+      }
+    ],
+    "kcrw": [
+      {
+        "title": "KCRW Eclectic 24",
+        "uri": "webkcrw/0",
+        "url": "https://kcrw.streamguys1.com/kcrw_192k_mp3_e24_internet_radio",
+        "logo": "kcrw_eclectic_24.png",
+        "api": "https://tracklist-api.kcrw.com/Music",
+        "scraper": "kcrw"
       }
     ],
     "radionova": [
@@ -153,42 +245,6 @@
         "logo": "nova_classics.jpg",
         "api": "https://www.nova.fr/wp-json/radios/nova-classics",
         "scraper": "radio_nova"
-      }
-    ],
-    "kcrw": [
-      {
-        "title": "KCRW Eclectic 24",
-        "uri": "webkcrw/0",
-        "url": "https://kcrw.streamguys1.com/kcrw_192k_mp3_e24_internet_radio",
-        "logo": "kcrw_eclectic_24.png",
-        "api": "https://tracklist-api.kcrw.com/Music",
-        "scraper": "kcrw"
-      }
-    ],
-    "francemusique": [
-      {
-        "title": "France Musique",
-        "uri": "webfrancemusique/0",
-        "url": "http://icecast.radiofrance.fr/francemusique-hifi.aac",
-        "logo": "france_musique.svg",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique",
-        "scraper": "radio_france"
-      },
-      {
-        "title": "France Musique Classique Easy",
-        "uri": "webfrancemusique/1",
-        "url": "http://icecast.radiofrance.fr/francemusiqueeasyclassique-hifi.aac",
-        "logo": "france_musique_classique_easy.webp",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_classique_easy",
-        "scraper": "radio_france"
-      },
-      {
-        "title": "France Musique Opéra",
-        "uri": "webfrancemusique/2",
-        "url": "https://icecast.radiofrance.fr/francemusiqueopera-hifi.aac",
-        "logo": "france_musique_opera.webp",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_opera",
-        "scraper": "radio_france"
       }
     ]
   }
