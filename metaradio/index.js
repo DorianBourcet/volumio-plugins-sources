@@ -563,24 +563,53 @@ ControllerMetaradio.prototype.setMetadata = function () {
 }
 
 ControllerMetaradio.prototype.setVolatile = function() {
-	if (!this.volatileCallback) {
-		this.volatileCallback = function(){}.bind(this);
+	let self = this;
+	self.logger.verbose('CALLED_SET_VOLATILE');
+	if (!self.volatileCallback) {
+		self.volatileCallback = self.onUnsetVolatile.bind(self);
 	}
-	if (!this.isCurrentService()) {
-		this.commandRouter.stateMachine.setVolatile({
-			service: this.serviceName,
-			callback: this.volatileCallback
+	self.logger('IS_CURRENT_SERVICE '+self.isCurrentService()); // TODO
+	if (!self.isCurrentService()) {
+		self.logger('IS_NOT_CURRENT_SERVICE');
+		self.commandRouter.stateMachine.setVolatile({
+			service: self.serviceName,
+			callback: self.volatileCallback
 		});
-		this.mpdPlugin.ignoreUpdate(true);
-		this.commandRouter.stateMachine.setConsumeUpdateService(undefined);
+		self.mpdPlugin.ignoreUpdate(true);
+		self.commandRouter.stateMachine.setConsumeUpdateService(undefined);
 	}
 }
 
 ControllerMetaradio.prototype.isCurrentService = function() {
 	// Check what is the current Volumio service
-	let currentstate = this.commandRouter.volumioGetState();
-	if (currentstate !== undefined && currentstate.service !== undefined && currentstate.service !== this.serviceName) {
+	let self = this;
+	let currentstate = self.commandRouter.volumioGetState();
+	self.logger.verbose(JSON.stringify(currentstate));
+	if (currentstate !== undefined && currentstate.service !== undefined && currentstate.service !== self.serviceName) {
 			return false;
 	}
 	return true;
+}
+
+ControllerMetaradio.prototype.onUnsetVolatile = function() {
+	let self = this;
+
+	let emptyState = {
+    status: 'stop',
+    service: 'metaradio',
+    title: undefined,
+    artist: undefined,
+    album: undefined,
+    albumart: '/albumart',
+    uri: '',
+    trackType: undefined,
+    seek: 0,
+    duration: 0,
+    samplerate: undefined,
+    bitdepth: undefined,
+    bitrate: undefined,
+    channels: undefined
+};
+	
+	return self.commandRouter.servicePushState(emptyState, self.serviceName);
 }
