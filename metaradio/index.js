@@ -445,18 +445,18 @@ ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
 	let now = Math.floor(Date.now() / 1000);
 	let extraDelay = 5;
 
-	if ('startTime' in scraped === false || scraped.startTime === null || scraped.startTime > now) {
+	if (scraped.startTime === undefined || scraped.startTime === null || scraped.startTime > now) {
 		scraped.startTime = now;
 	}
-	if ('endTime' in scraped === false || scraped.endTime === null || scraped.endTime < now) {
+	if (scraped.endTime === undefined || scraped.endTime === null || scraped.endTime < now) {
 		scraped.endTime = self.computeEndTime(scraped);
 		extraDelay = 0;
 	}
-	if ('cover' in scraped === false || scraped.cover === null) {
+	if (scraped.cover === undefined || scraped.cover === null || scraped.cover === false) {
 		scraped.cover = self.currentTrack.albumart;
 	}
-	if ('delayToRefresh' in scraped === false || scraped.delayToRefresh === null || scraped.delayToRefresh < 20) {
-		scraped.delayToRefresh = scraped.endTime - now + extraDelay;
+	if (scraped.delayToRefresh === undefined || scraped.delayToRefresh === null || scraped.delayToRefresh < 20) {
+		scraped.delayToRefresh = Math.max(scraped.endTime - now + extraDelay,20);
 	}
 
 	return scraped;
@@ -486,21 +486,16 @@ ControllerMetaradio.prototype.getMetadata = function () {
 	var self = this;
 	var defer = libQ.defer();
 	let key = self.currentTrack.uri.replace(/[^a-zA-Z0-9]/g, '');
-	self.logger.verbose('RADIO_KEY '+JSON.stringify(key));
 	let cachedMetadata = self.cache.get(key);
 	if (cachedMetadata === undefined) {
 		self.scraper.getMetadata(self.currentTrack.api)
 			.then(function (result) {
 				result = self.hydrateMetadata(result);
-				self.logger.verbose('METADATA_SOURCE api');
-				self.logger.verbose('API_RESULT '+JSON.stringify(result));
 				self.cache.set(key, result, result.delayToRefresh);
 
 				defer.resolve(result);
 			});
 	} else {
-		self.logger.verbose('METADATA_SOURCE cache');
-		self.logger.verbose('CACHE_RESULT '+JSON.stringify(cachedMetadata));
 		defer.resolve(cachedMetadata);
 	}
 
