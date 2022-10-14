@@ -445,21 +445,30 @@ ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
 	let now = Math.floor(Date.now() / 1000);
 	let extraDelay = 5;
 
-	if (scraped.startTime === undefined || scraped.startTime === null || scraped.startTime > now) {
+	if (!scraped.startTime || scraped.startTime > now) {
 		scraped.startTime = now;
 	}
-	if (scraped.endTime === undefined || scraped.endTime === null || scraped.endTime < now) {
+	if (!scraped.endTime || scraped.endTime < now) {
 		scraped.endTime = self.computeEndTime(scraped);
 		extraDelay = 0;
 	}
-	if (scraped.cover === undefined || scraped.cover === null || scraped.cover === false) {
+	if (!scraped.cover || !self.isValidUrl(scraped.cover)) {
 		scraped.cover = self.currentTrack.albumart;
 	}
-	if (scraped.delayToRefresh === undefined || scraped.delayToRefresh === null || scraped.delayToRefresh < 20) {
+	if (!scraped.delayToRefresh || scraped.delayToRefresh < 20) {
 		scraped.delayToRefresh = Math.max(scraped.endTime - now + extraDelay,20);
 	}
 
 	return scraped;
+}
+
+ControllerMetaradio.prototype.isValidUrl = function (urlString) {
+	try { 
+		return Boolean(new URL(urlString)); 
+	}
+	catch(e){ 
+		return false; 
+	}
 }
 
 ControllerMetaradio.prototype.computeEndTime = function (metadata) {
@@ -511,6 +520,8 @@ ControllerMetaradio.prototype.setMetadata = function () {
 			var vState = self.commandRouter.stateMachine.getState();
 			var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
 			vState.seek = seek;
+			//console.log('SEEK '+seek);
+			//console.log('REMAINING '+(result.endTime * 1000 - Date.now()));
 			vState.disableUiControls = true;
 
 			vState.duration = duration;

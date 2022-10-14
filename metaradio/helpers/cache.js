@@ -2,7 +2,6 @@ function Cache(maxTtl = 900) {
   var self = this;
   self.maxTtl = maxTtl;
   self.cache = {};
-  console.log('INSTANCIATED_CACHE');
 
   self.get = function(key) {
     let self = this;
@@ -12,6 +11,8 @@ function Cache(maxTtl = 900) {
       console.log('CACHE__EXPIRED_FROM_CACHE');
       delete self.cache[key];
       return undefined;
+    } else {
+      console.log('CACHE__FETCHED_FROM_CACHE');
     }
     return self.cache[key].value;
   }
