@@ -27,6 +27,7 @@ function ControllerMetaradio(context) {
 	self.titleInfoAttempt = 0;
   self.currentTrack = {};
 	self.cache = new Cache();
+	self.stationTitleList = [];
 }
 
 ControllerMetaradio.prototype.onVolumioStart = function()
@@ -158,7 +159,9 @@ ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
 // Define a method to clear, add, and play an array of tracks
 ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 	var self = this;
-  self.currentTrack = {...track};
+	if (!self.stationTitleList.includes(track.name)) {
+		self.currentTrack = {...track};
+	}
 
 	if (self.timer) {
 		self.timer.stop();
@@ -180,9 +183,10 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 		})
 		.then(function () {
 			return self.mpdPlugin.getState().then(function (state) {
-				var vState = self.commandRouter.stateMachine.getState();
+				self.pushState(self.fallbackState());
+				/*var vState = self.commandRouter.stateMachine.getState();
 				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-				queueItem.name = track.name;
+				queueItem.name = track.name;*/
 				//queueItem.trackType = track.name;
 				//vState.trackType = track.name;
 				/*queueItem.bitrate = state.bitrate;
@@ -194,9 +198,9 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 		})
 		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
-			self.timer = new Timer(self.setMetadata.bind(self), function(result) {return result*1000;}, 1000);
+			self.timer = new Timer(self.pushProperState.bind(self), function(result) {return result*1000;}, 1000);
 			self.timer.start();
-			//return self.setMetadata(track.api);
+			//return self.pushProperState(track.api);
 	
 		})
 		.fail(function (e) {
@@ -242,36 +246,7 @@ ControllerMetaradio.prototype.pause = function() {
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::pause');
 	return self.mpdPlugin.sendMpdCommand('pause', [1])
     .then(function () {
-			var vState = self.commandRouter.stateMachine.getState();
-			var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-			vState.seek = 0;
-			vState.disableUiControls = true;
-
-			vState.duration = 0;
-			queueItem.duration = 0;
-
-			self.logger.verbose('PAUSE_TRACK '+JSON.stringify(self.currentTrack));
-			vState.albumart = self.currentTrack.albumart;
-			queueItem.albumart = self.currentTrack.albumart;
-
-			vState.name =  self.currentTrack.name;
-			queueItem.name =  self.currentTrack.name;
-			vState.artist =  null;
-			queueItem.artist =  null;
-			vState.album = null;
-			queueItem.album = null;
-
-			//queueItem.trackType = 'F I P';
-			//vState.trackType = self.stationName;
-
-			self.commandRouter.stateMachine.currentSeek = 0;  // reset Volumio timer
-			//self.commandRouter.stateMachine.playbackStart=result.startTime;
-			self.commandRouter.stateMachine.currentSongDuration=0;
-			self.commandRouter.stateMachine.askedForPrefetch=false;
-			self.commandRouter.stateMachine.prefetchDone=false;
-			self.commandRouter.stateMachine.simulateStopStartDone=false;
-
-			self.commandRouter.servicePushState(vState, self.serviceName);
+			self.pushState(self.fallbackState());
     });
 };
 
@@ -293,7 +268,7 @@ ControllerMetaradio.prototype.resume = function () {
 		})
 		.then(function () {
 			self.scraper = new (require(__dirname + '/scrapers/' + self.currentTrack.scraper))();
-			self.setMetadata();
+			self.pushProperState();
 	
 		})
 		.fail(function (e) {
@@ -409,7 +384,7 @@ ControllerMetaradio.prototype.getRadioContent = function() {
   response.navigation.lists[0].items = [];
 	for (var station in self.radioStations) {
 		for (var channel of self.radioStations[station]) {
-				var radio = {
+				let radio = {
 					service: self.serviceName,
 					type: 'song',
 					title: channel.title,
@@ -417,6 +392,7 @@ ControllerMetaradio.prototype.getRadioContent = function() {
 					albumart: '/albumart?sourceicon=music_service/'+self.serviceName+'/logos/'+channel.logo
 				};
 				response.navigation.lists[0].items.push(radio);
+				self.stationTitleList.push(channel.title);
 		}
 	}
 
@@ -455,9 +431,9 @@ ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
 	if (!scraped.cover || !self.isValidUrl(scraped.cover)) {
 		scraped.cover = self.currentTrack.albumart;
 	}
-	if (!scraped.delayToRefresh || scraped.delayToRefresh < 20) {
+	/*if (!scraped.delayToRefresh || scraped.delayToRefresh < 20) {
 		scraped.delayToRefresh = Math.max(scraped.endTime - now + extraDelay,20);
-	}
+	}*/
 
 	return scraped;
 }
@@ -492,19 +468,26 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 }
 
 ControllerMetaradio.prototype.getMetadata = function () {
-	var self = this;
-	var defer = libQ.defer();
+	let self = this;
+	let defer = libQ.defer();
 	let key = self.currentTrack.uri.replace(/[^a-zA-Z0-9]/g, '');
 	let cachedMetadata = self.cache.get(key);
-	if (cachedMetadata === undefined) {
+	console.log(cachedMetadata === undefined);
+	console.log(self.cache.canRefresh(key));
+	if (cachedMetadata === undefined && self.cache.canRefresh(key)) {
+		console.log('IN THE IF');
 		self.scraper.getMetadata(self.currentTrack.api)
 			.then(function (result) {
+				console.log('API_RESULT '+JSON.stringify(result));
 				result = self.hydrateMetadata(result);
-				self.cache.set(key, result, result.delayToRefresh);
+				let ttl = Math.floor(result.endTime - Date.now() / 1000);
+				let ttr = result.delayToRefresh || null;
+				self.cache.set(key, result, ttl, ttr);
 
 				defer.resolve(result);
 			});
 	} else {
+		console.log('IN THE ELSE');
 		defer.resolve(cachedMetadata);
 	}
 
@@ -520,8 +503,8 @@ ControllerMetaradio.prototype.setMetadata = function () {
 			var vState = self.commandRouter.stateMachine.getState();
 			var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
 			vState.seek = seek;
-			//console.log('SEEK '+seek);
-			//console.log('REMAINING '+(result.endTime * 1000 - Date.now()));
+			console.log('COMPUTED_SEEK '+seek);
+			console.log('COMPUTED_REMAINING '+(result.endTime * 1000 - Date.now()));
 			vState.disableUiControls = true;
 
 			vState.duration = duration;
@@ -565,4 +548,89 @@ ControllerMetaradio.prototype.setMetadata = function () {
 			//return result.delayToRefresh;
 			return 5;
 		});
+}
+
+// The fallback state contains static radio metadata
+ControllerMetaradio.prototype.fallbackState = function () {
+	let self = this;
+	console.log('FALLBACK_NAME '+self.currentTrack.name);
+
+	return {
+		seek: 0,
+		disableUiControls: true,
+		duration: 0,
+		albumart: self.currentTrack.albumart,
+		name: self.currentTrack.name,
+		artist: null,
+		album: null,
+		askedForPrefetch: false,
+		prefetchDone: false,
+		simulateStopStartDone: false,
+	};
+}
+
+// The metadata state contains dynamically fetched radio metadata
+ControllerMetaradio.prototype.metadataState = function () {
+	let self = this;
+	return self.getMetadata()
+		.then(function (result) {
+			if (result === undefined) { return undefined; }
+			return {
+				seek: Date.now() - result.startTime * 1000,
+				startTime: result.startTime,
+				disableUiControls: true,
+				duration: result.endTime - result.startTime,
+				albumart: result.cover,
+				name: result.title,
+				artist: result.artist,
+				album: result.album,
+				askedForPrefetch: false,
+				prefetchDone: false,
+				simulateStopStartDone: false,
+			};
+		});
+}
+
+ControllerMetaradio.prototype.pushProperState = function () {
+	let self = this;
+	let defer = libQ.defer();
+	return self.metadataState().then(function (state) {
+		if (state === undefined) {
+			self.pushState(self.fallbackState());
+			return 1;
+		}
+		self.pushState(state);
+		return 5;
+	})
+}
+
+ControllerMetaradio.prototype.pushState = function (state) {
+	let self = this;
+	let vState = self.commandRouter.stateMachine.getState();
+	let queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
+	vState.seek = state.seek;
+	vState.disableUiControls = state.disableUiControls;
+	vState.duration = state.duration;
+	queueItem.duration = state.duration;
+	vState.albumart = state.albumart;
+	queueItem.albumart = state.albumart;
+	vState.name =  state.name;
+	queueItem.name =  state.name;
+	vState.artist =  state.artist;
+	queueItem.artist =  state.artist;
+	vState.album = state.album;
+	queueItem.album = state.album;
+	self.commandRouter.stateMachine.currentSeek = state.seek;
+	if (state.startTime) {
+		self.commandRouter.stateMachine.playbackStart = state.startTime;
+	}
+	self.commandRouter.stateMachine.currentSongDuration = state.duration;
+	self.commandRouter.stateMachine.askedForPrefetch = state.askedForPrefetch;
+	self.commandRouter.stateMachine.prefetchDone = state.prefetchDone;
+	self.commandRouter.stateMachine.simulateStopStartDone = state.simulateStopStartDone;
+	self.commandRouter.servicePushState(vState, self.serviceName);
+}
+
+ControllerMetaradio.prototype.now = function () {
+	return Math.floor(Date.now() / 1000);
 }
