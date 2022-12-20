@@ -25,7 +25,7 @@ function ControllerMetaradio(context) {
 	self.scraper = null;
 	self.latestTitleInfo = null;
 	self.titleInfoAttempt = 0;
-  self.currentTrack = {};
+  self.currentStation = {};
 	self.cache = new Cache();
 }
 
@@ -158,7 +158,8 @@ ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
 // Define a method to clear, add, and play an array of tracks
 ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 	var self = this;
-  self.currentTrack = {...track};
+	console.log('CLEAR_ADD_PLAYTRACK',JSON.stringify(track))
+  self.currentStation = {...track};
 
 	if (self.timer) {
 		self.timer.stop();
@@ -221,6 +222,25 @@ ControllerMetaradio.prototype.stop = function() {
 
 	return self.mpdPlugin.sendMpdCommand('stop', [])
 	.then(function () {
+		var vState = self.commandRouter.stateMachine.getState();
+		var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
+		vState.seek = 0;
+		vState.disableUiControls = true;
+
+		vState.duration = 0;
+		queueItem.duration = 0;
+
+		vState.albumart = self.currentStation.albumart;
+		queueItem.albumart = self.currentStation.albumart;
+
+		vState.name =  self.currentStation.name;
+		queueItem.name =  self.currentStation.name;
+		vState.artist =  null;
+		queueItem.artist =  null;
+		vState.album = null;
+		queueItem.album = null;
+	})
+	.then(function () {
 		return self.mpdPlugin.getState().then(function (state) {
 			return self.commandRouter.servicePushState(state, self.serviceName);
 		});
@@ -250,12 +270,12 @@ ControllerMetaradio.prototype.pause = function() {
 			vState.duration = 0;
 			queueItem.duration = 0;
 
-			self.logger.verbose('PAUSE_TRACK '+JSON.stringify(self.currentTrack));
-			vState.albumart = self.currentTrack.albumart;
-			queueItem.albumart = self.currentTrack.albumart;
+			self.logger.verbose('PAUSE_TRACK '+JSON.stringify(self.currentStation));
+			vState.albumart = self.currentStation.albumart;
+			queueItem.albumart = self.currentStation.albumart;
 
-			vState.name =  self.currentTrack.name;
-			queueItem.name =  self.currentTrack.name;
+			vState.name =  self.currentStation.name;
+			//queueItem.name =  self.currentStation.name;
 			vState.artist =  null;
 			queueItem.artist =  null;
 			vState.album = null;
@@ -283,7 +303,7 @@ ControllerMetaradio.prototype.resume = function () {
 		self.timer.start();
 	}
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::resume');
-	self.commandRouter.logger.info(JSON.stringify(self.currentTrack));
+	self.commandRouter.logger.info(JSON.stringify(self.currentStation));
 
 	return self.mpdPlugin.sendMpdCommand('play', [])
 		.then(function () {
@@ -292,7 +312,7 @@ ControllerMetaradio.prototype.resume = function () {
 			});
 		})
 		.then(function () {
-			self.scraper = new (require(__dirname + '/scrapers/' + self.currentTrack.scraper))();
+			self.scraper = new (require(__dirname + '/scrapers/' + self.currentStation.scraper))();
 			self.setMetadata();
 	
 		})
@@ -453,7 +473,7 @@ ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
 		extraDelay = 0;
 	}
 	if (scraped.cover === undefined || scraped.cover === null || scraped.cover === false) {
-		scraped.cover = self.currentTrack.albumart;
+		scraped.cover = self.currentStation.albumart;
 	}
 	if (scraped.delayToRefresh === undefined || scraped.delayToRefresh === null || scraped.delayToRefresh < 20) {
 		scraped.delayToRefresh = Math.max(scraped.endTime - now + extraDelay,20);
@@ -485,10 +505,10 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 ControllerMetaradio.prototype.getMetadata = function () {
 	var self = this;
 	var defer = libQ.defer();
-	let key = self.currentTrack.uri.replace(/[^a-zA-Z0-9]/g, '');
+	let key = self.currentStation.uri.replace(/[^a-zA-Z0-9]/g, '');
 	let cachedMetadata = self.cache.get(key);
 	if (cachedMetadata === undefined) {
-		self.scraper.getMetadata(self.currentTrack.api)
+		self.scraper.getMetadata(self.currentStation.api)
 			.then(function (result) {
 				result = self.hydrateMetadata(result);
 				self.cache.set(key, result, result.delayToRefresh);
@@ -526,8 +546,8 @@ ControllerMetaradio.prototype.setMetadata = function () {
 			vState.album = result.album;
 			queueItem.album = result.album;
 
-			//queueItem.trackType = self.currentTrack.name;
-			//vState.trackType = self.currentTrack.name;
+			queueItem.trackType = self.currentStation.name;
+			//vState.trackType = self.currentStation.name;
 
 			self.commandRouter.stateMachine.currentSeek = seek;  // reset Volumio timer
 			self.commandRouter.stateMachine.playbackStart=result.startTime;

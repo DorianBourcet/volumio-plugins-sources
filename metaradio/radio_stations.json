@@ -103,6 +103,26 @@
         "scraper": "radio_france"
       }
     ],
+    "franceculture": [
+      {
+        "title": "France Culture",
+        "uri": "webfranceculture/0",
+        "url": "http://icecast.radiofrance.fr/franceculture-hifi.aac",
+        "logo": "france_culture.svg",
+        "api": "https://www.radiofrance.fr/api/v2.0/stations/franceculture/live",
+        "scraper": "radio_france_live"
+      }
+    ],
+    "franceinter": [
+      {
+        "title": "France Inter",
+        "uri": "webfranceinter/0",
+        "url": "http://icecast.radiofrance.fr/franceinter-hifi.aac",
+        "logo": "france_inter.svg",
+        "api": "https://www.radiofrance.fr/api/v2.0/stations/franceinter/live",
+        "scraper": "radio_france_live"
+      }
+    ],
     "francemusique": [
       {
         "title": "France Musique",
