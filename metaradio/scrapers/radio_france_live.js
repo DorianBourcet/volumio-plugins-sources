@@ -15,10 +15,12 @@ class RadioFranceLiveScraper extends BaseScraper {
       .then(function (metadata) {
         var [title] = jp.query(metadata, '$.now.secondLine.title');
         var [artist] = jp.query(metadata, '$.now.firstLine.title');
-        var [cover] = jp.query(metadata, '$.now.visuals.card.webpSrc');
+        var [cover] = jp.query(metadata, '$.now.visuals.player.webpSrc');
         var [startTime] = jp.query(metadata, '$.now.media.startTime');
         var [endTime] = jp.query(metadata, '$.now.media.endTime');
         var [rawDelayToRefresh] = jp.query(metadata, '$.delayToRefresh');
+
+        cover = cover.replace(/\/200x200_/,'/400x400_');
 
         let scraped = {
           title,
