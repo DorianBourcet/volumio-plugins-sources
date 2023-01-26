@@ -421,6 +421,9 @@ ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
 	let now = Math.floor(Date.now() / 1000);
 	let extraDelay = 5;
 
+	if (scraped.title === undefined || scraped.title === null || scraped.title === false) {
+		scraped.title = self.currentStation.name;
+	}
 	if (scraped.startTime === undefined || scraped.startTime === null || scraped.startTime > now) {
 		scraped.startTime = now;
 	}
