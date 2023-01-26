@@ -19,7 +19,7 @@
         "uri": "webfip/000",
         "url": "http://icecast.radiofrance.fr/fip-hifi.aac",
         "logo": "fip.svg",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip",
+        "api": "https://www.radiofrance.fr/api/v2.1/stations/fip/webradios/fip",
         "scraper": "radio_france"
       },
       {

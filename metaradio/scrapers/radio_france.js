@@ -19,7 +19,16 @@ class RadioFranceScraper extends BaseScraper {
         var [cover] = jp.query(metadata, '$.now.cover.webpSrc');
         var [startTime] = jp.query(metadata, '$.media.startTime');
         var [endTime] = jp.query(metadata, '$.media.endTime');
-        var [rawDelayToRefresh] = jp.query(metadata, '$.delayToRefresh');
+        // var [rawDelayToRefresh] = jp.query(metadata, '$.delayToRefresh');
+
+        if (title === 'Le direct') {
+          var now = Math.floor(Date.now() / 1000);
+          return {
+            cover,
+            startTime: now,
+            endTime: now + 20,
+          };
+        }
 
         let scraped = {
           title,
@@ -29,9 +38,9 @@ class RadioFranceScraper extends BaseScraper {
           startTime,
           endTime,
         };
-        if (rawDelayToRefresh !== null) {
+        /*if (rawDelayToRefresh !== null) {
           scraped.delayToRefresh = Math.floor(rawDelayToRefresh / 1000);
-        }
+        }*/
 
         return scraped;
       });
