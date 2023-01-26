@@ -15,7 +15,7 @@
   "stations": {
     "fip": [
       {
-        "title": "F I P",
+        "title": "FIP",
         "uri": "webfip/0",
         "url": "http://icecast.radiofrance.fr/fip-hifi.aac",
         "logo": "fip.svg",
@@ -23,11 +23,11 @@
         "scraper": "radio_france"
       },
       {
-        "title": "FIP Rock",
-        "uri": "webfip/1",
-        "url": "http://icecast.radiofrance.fr/fiprock-hifi.aac",
-        "logo": "fip_rock.webp",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip_rock",
+        "title": "FIP Electro",
+        "uri": "webfip/7",
+        "url": "http://icecast.radiofrance.fr/fipelectro-hifi.aac",
+        "logo": "fip_electro.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip_electro",
         "scraper": "radio_france"
       },
       {
@@ -47,14 +47,6 @@
         "scraper": "radio_france"
       },
       {
-        "title": "FIP Metal",
-        "uri": "webfip/4",
-        "url": "http://icecast.radiofrance.fr/fipmetal-hifi.aac",
-        "logo": "fip_metal.webp",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip_metal",
-        "scraper": "radio_france"
-      },
-      {
         "title": "FIP Hip-Hop",
         "uri": "webfip/5",
         "url": "http://icecast.radiofrance.fr/fiphiphop-hifi.aac",
@@ -63,19 +55,11 @@
         "scraper": "radio_france"
       },
       {
-        "title": "FIP Pop",
-        "uri": "webfip/6",
-        "url": "http://icecast.radiofrance.fr/fippop-hifi.aac",
-        "logo": "fip_pop.webp",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip_pop",
-        "scraper": "radio_france"
-      },
-      {
-        "title": "FIP Electro",
-        "uri": "webfip/7",
-        "url": "http://icecast.radiofrance.fr/fipelectro-hifi.aac",
-        "logo": "fip_electro.webp",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip_electro",
+        "title": "FIP Metal",
+        "uri": "webfip/4",
+        "url": "http://icecast.radiofrance.fr/fipmetal-hifi.aac",
+        "logo": "fip_metal.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip_metal",
         "scraper": "radio_france"
       },
       {
@@ -87,6 +71,22 @@
         "scraper": "radio_france"
       },
       {
+        "title": "FIP Nouveautés",
+        "uri": "webfip/10",
+        "url": "http://icecast.radiofrance.fr/fipnouveautes-hifi.aac",
+        "logo": "fip_nouveautes.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip_nouveautes",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "FIP Pop",
+        "uri": "webfip/6",
+        "url": "http://icecast.radiofrance.fr/fippop-hifi.aac",
+        "logo": "fip_pop.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip_pop",
+        "scraper": "radio_france"
+      },
+      {
         "title": "FIP Reggae",
         "uri": "webfip/9",
         "url": "http://icecast.radiofrance.fr/fipreggae-hifi.aac",
@@ -95,11 +95,11 @@
         "scraper": "radio_france"
       },
       {
-        "title": "FIP Nouveautés",
-        "uri": "webfip/10",
-        "url": "http://icecast.radiofrance.fr/fipnouveautes-hifi.aac",
-        "logo": "fip_nouveautes.webp",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip_nouveautes",
+        "title": "FIP Rock",
+        "uri": "webfip/1",
+        "url": "http://icecast.radiofrance.fr/fiprock-hifi.aac",
+        "logo": "fip_rock.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/fip/webradios/fip_rock",
         "scraper": "radio_france"
       }
     ],
@@ -141,22 +141,6 @@
         "scraper": "radio_france"
       },
       {
-        "title": "France Musique Opéra",
-        "uri": "webfrancemusique/2",
-        "url": "https://icecast.radiofrance.fr/francemusiqueopera-hifi.aac",
-        "logo": "france_musique_opera.webp",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_opera",
-        "scraper": "radio_france"
-      },
-      {
-        "title": "France Musique La Baroque",
-        "uri": "webfrancemusique/3",
-        "url": "https://icecast.radiofrance.fr/francemusiquebaroque-hifi.aac",
-        "logo": "france_musique_la_baroque.webp",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_baroque",
-        "scraper": "radio_france"
-      },
-      {
         "title": "France Musique Classique Plus",
         "uri": "webfrancemusique/4",
         "url": "https://icecast.radiofrance.fr/francemusiqueclassiqueplus-hifi.aac",
@@ -173,11 +157,19 @@
         "scraper": "radio_france"
       },
       {
-        "title": "France Musique La Jazz",
-        "uri": "webfrancemusique/6",
-        "url": "https://icecast.radiofrance.fr/francemusiquelajazz-hifi.aac",
-        "logo": "france_musique_la_jazz.webp",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_la_jazz",
+        "title": "France Musique La Baroque",
+        "uri": "webfrancemusique/3",
+        "url": "https://icecast.radiofrance.fr/francemusiquebaroque-hifi.aac",
+        "logo": "france_musique_la_baroque.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_baroque",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique La B.O. Musiques de Films",
+        "uri": "webfrancemusique/9",
+        "url": "https://icecast.radiofrance.fr/francemusiquelabo-hifi.aac",
+        "logo": "france_musique_la_bo_films.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_evenementielle",
         "scraper": "radio_france"
       },
       {
@@ -189,6 +181,14 @@
         "scraper": "radio_france"
       },
       {
+        "title": "France Musique La Jazz",
+        "uri": "webfrancemusique/6",
+        "url": "https://icecast.radiofrance.fr/francemusiquelajazz-hifi.aac",
+        "logo": "france_musique_la_jazz.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_la_jazz",
+        "scraper": "radio_france"
+      },
+      {
         "title": "France Musique Ocora Musiques du Monde",
         "uri": "webfrancemusique/8",
         "url": "https://icecast.radiofrance.fr/francemusiqueocoramonde-hifi.aac",
@@ -197,11 +197,11 @@
         "scraper": "radio_france"
       },
       {
-        "title": "France Musique La B.O. Musiques de Films",
-        "uri": "webfrancemusique/9",
-        "url": "https://icecast.radiofrance.fr/francemusiquelabo-hifi.aac",
-        "logo": "france_musique_la_bo_films.webp",
-        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_evenementielle",
+        "title": "France Musique Opéra",
+        "uri": "webfrancemusique/2",
+        "url": "https://icecast.radiofrance.fr/francemusiqueopera-hifi.aac",
+        "logo": "france_musique_opera.webp",
+        "api": "https://www.radiofrance.fr/api/v1.9/stations/francemusique/webradios/francemusique_opera",
         "scraper": "radio_france"
       }
     ],
@@ -225,6 +225,16 @@
         "scraper": "kcrw"
       }
     ],
+    "radioclassiqueqc": [
+      {
+        "title": "Radio Classique Québec",
+        "uri": "webradioclassiqueqc/0",
+        "url": "https://listen.radioking.com/radio/256885/stream/301510",
+        "logo": "radio_classique_quebec.jpeg",
+        "api": "https://www.radioclassique.ca/players/index/gettitrageplayer/idplayers/4",
+        "scraper": "radio_classique_qc"
+      }
+    ],
     "radionova": [
       {
         "title": "Radio Nova",
@@ -243,6 +253,14 @@
         "scraper": "radio_nova"
       },
       {
+        "title": "Nova Classics",
+        "uri": "webradionova/4",
+        "url": "http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac",
+        "logo": "nova_classics.jpg",
+        "api": "https://www.nova.fr/wp-json/radios/nova-classics",
+        "scraper": "radio_nova"
+      },
+      {
         "title": "Nova Danse",
         "uri": "webradionova/2",
         "url": "http://nova-dance.ice.infomaniak.ch/nova-dance-256.aac",
@@ -256,14 +274,6 @@
         "url": "http://nova-ln.ice.infomaniak.ch/nova-ln-256.aac",
         "logo": "nova_la_nuit.jpg",
         "api": "https://www.nova.fr/wp-json/radios/nova-la-nuit",
-        "scraper": "radio_nova"
-      },
-      {
-        "title": "Nova Classics",
-        "uri": "webradionova/4",
-        "url": "http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac",
-        "logo": "nova_classics.jpg",
-        "api": "https://www.nova.fr/wp-json/radios/nova-classics",
         "scraper": "radio_nova"
       }
     ]
