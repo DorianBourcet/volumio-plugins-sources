@@ -18,7 +18,7 @@ class RadioFranceLiveScraper extends BaseScraper {
         var [cover] = jp.query(metadata, '$.now.visuals.player.webpSrc');
         var [startTime] = jp.query(metadata, '$.now.media.startTime');
         var [endTime] = jp.query(metadata, '$.now.media.endTime');
-        var [rawDelayToRefresh] = jp.query(metadata, '$.delayToRefresh');
+        // var [rawDelayToRefresh] = jp.query(metadata, '$.delayToRefresh');
 
         cover = cover.replace(/\/200x200_/,'/400x400_');
 
@@ -29,9 +29,9 @@ class RadioFranceLiveScraper extends BaseScraper {
           startTime,
           endTime,
         };
-        if (rawDelayToRefresh !== null) {
+        /*if (rawDelayToRefresh !== null) {
           scraped.delayToRefresh = Math.floor(rawDelayToRefresh / 1000);
-        }
+        }*/
 
         return scraped;
       });
