@@ -159,6 +159,9 @@ ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
 ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 	var self = this;
 	console.log('CLEAR_ADD_PLAYTRACK',JSON.stringify(track))
+	/*if (Object.entries(self.currentStation).length > 0) {
+		self.resetPlayingTrack();
+	}*/
   self.currentStation = {...track};
 
 	if (self.timer) {
@@ -221,25 +224,7 @@ ControllerMetaradio.prototype.stop = function() {
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::stop');
 
 	return self.mpdPlugin.sendMpdCommand('stop', [])
-	.then(function () {
-		var vState = self.commandRouter.stateMachine.getState();
-		var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-		vState.seek = 0;
-		vState.disableUiControls = true;
-
-		vState.duration = 0;
-		queueItem.duration = 0;
-
-		vState.albumart = self.currentStation.albumart;
-		queueItem.albumart = self.currentStation.albumart;
-
-		vState.name =  self.currentStation.name;
-		queueItem.name =  self.currentStation.name;
-		vState.artist =  null;
-		queueItem.artist =  null;
-		vState.album = null;
-		queueItem.album = null;
-	})
+	.then(self.resetPlayingTrack())
 	.then(function () {
 		return self.mpdPlugin.getState().then(function (state) {
 			return self.commandRouter.servicePushState(state, self.serviceName);
@@ -255,44 +240,15 @@ ControllerMetaradio.prototype.stop = function() {
 // Pause
 ControllerMetaradio.prototype.pause = function() {
 	var self = this;
+	self.stop();
+	return;
 
 	if (self.timer) {
 		self.timer.stop();
 	}
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::pause');
 	return self.mpdPlugin.sendMpdCommand('pause', [1])
-    .then(function () {
-			var vState = self.commandRouter.stateMachine.getState();
-			var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-			vState.seek = 0;
-			vState.disableUiControls = true;
-
-			vState.duration = 0;
-			queueItem.duration = 0;
-
-			self.logger.verbose('PAUSE_TRACK '+JSON.stringify(self.currentStation));
-			vState.albumart = self.currentStation.albumart;
-			queueItem.albumart = self.currentStation.albumart;
-
-			vState.name =  self.currentStation.name;
-			//queueItem.name =  self.currentStation.name;
-			vState.artist =  null;
-			queueItem.artist =  null;
-			vState.album = null;
-			queueItem.album = null;
-
-			//queueItem.trackType = 'F I P';
-			//vState.trackType = self.stationName;
-
-			self.commandRouter.stateMachine.currentSeek = 0;  // reset Volumio timer
-			//self.commandRouter.stateMachine.playbackStart=result.startTime;
-			self.commandRouter.stateMachine.currentSongDuration=0;
-			self.commandRouter.stateMachine.askedForPrefetch=false;
-			self.commandRouter.stateMachine.prefetchDone=false;
-			self.commandRouter.stateMachine.simulateStopStartDone=false;
-
-			self.commandRouter.servicePushState(vState, self.serviceName);
-    });
+    .then(self.resetPlayingTrack());
 };
 
 // Resume
@@ -493,13 +449,13 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 
 		var seek = now - metadata.startTime;
 
-		if (seek < 150) {return now + 150 - seek;}
+		if (seek < 180) {return now + 180 - seek;}
 	}
 	else {
 		self.titleInfoAttempt++;
 	}
 
-	return now + 20;
+	return now + 25;
 }
 
 ControllerMetaradio.prototype.getMetadata = function () {
@@ -574,4 +530,29 @@ ControllerMetaradio.prototype.setMetadata = function () {
 			//return result.delayToRefresh;
 			return 5;
 		});
+}
+
+ControllerMetaradio.prototype.resetPlayingTrack = function () {
+	let self = this;
+	let vState = self.commandRouter.stateMachine.getState();
+	let queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
+	vState.seek = 0;
+	vState.disableUiControls = true;
+
+	vState.duration = 0;
+	queueItem.duration = 0;
+
+	vState.albumart = self.currentStation.albumart;
+	queueItem.albumart = self.currentStation.albumart;
+
+	vState.name =  self.currentStation.name;
+	queueItem.name =  self.currentStation.name;
+	vState.artist =  null;
+	queueItem.artist =  null;
+	vState.album = null;
+	queueItem.album = null;
+	queueItem.samplerate = null;
+	vState.samplerate = null;
+  queueItem.bitdepth = null;
+	vState.bitdepth = null;
 }
