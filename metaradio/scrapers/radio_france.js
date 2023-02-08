@@ -22,12 +22,7 @@ class RadioFranceScraper extends BaseScraper {
         // var [rawDelayToRefresh] = jp.query(metadata, '$.delayToRefresh');
 
         if (title === 'Le direct') {
-          var now = Math.floor(Date.now() / 1000);
-          return {
-            cover,
-            startTime: now,
-            endTime: now + 20,
-          };
+          return {};
         }
 
         let scraped = {

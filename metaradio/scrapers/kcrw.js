@@ -25,12 +25,8 @@ class KcrwScraper extends BaseScraper {
         dayjs.extend(timezone);
         var startTime = dayjs.tz(diffusionDate, 'America/Los_Angeles').unix();
 
-        if (title === '[break]') {
-          var now = Math.floor(Date.now() / 1000);
-          return {
-            startTime: now,
-            endTime: now + 20,
-          };
+        if (title.trim().toLowerCase() === '[break]') {
+          return {};
         }
 
         return {

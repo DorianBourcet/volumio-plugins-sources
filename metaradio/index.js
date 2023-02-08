@@ -417,23 +417,30 @@ ControllerMetaradio.prototype.getRadioI18nString = function (key) {
 ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
 	var self = this;
 
-	let scraped = {...metadata};
+	let base = {
+		title: self.currentStation.name,
+		cover: self.currentStation.albumart
+	}
+	let scraped = {...base, ...metadata};
 	let now = Math.floor(Date.now() / 1000);
 	let extraDelay = 5;
 
-	if (scraped.title === undefined || scraped.title === null || scraped.title === false) {
-		scraped.title = self.currentStation.name;
-	}
+	// if (scraped.title === undefined || scraped.title === null || scraped.title === false) {
+	// 	scraped.title = self.currentStation.name;
+	// }
 	if (scraped.startTime === undefined || scraped.startTime === null || scraped.startTime > now) {
 		scraped.startTime = now;
+	}
+	if (JSON.stringify(metadata) === '{}') {
+		scraped.endTime = now + 20;
 	}
 	if (scraped.endTime === undefined || scraped.endTime === null || scraped.endTime < now) {
 		scraped.endTime = self.computeEndTime(scraped);
 		extraDelay = 0;
 	}
-	if (scraped.cover === undefined || scraped.cover === null || scraped.cover === false) {
-		scraped.cover = self.currentStation.albumart;
-	}
+	// if (scraped.cover === undefined || scraped.cover === null || scraped.cover === false) {
+	// 	scraped.cover = self.currentStation.albumart;
+	// }
 	if (scraped.delayToRefresh === undefined || scraped.delayToRefresh === null || scraped.delayToRefresh < 20) {
 		scraped.delayToRefresh = Math.max(scraped.endTime - now + extraDelay,20);
 	}
