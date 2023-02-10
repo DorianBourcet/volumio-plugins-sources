@@ -197,10 +197,12 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 			});
 		})
 		.then(function () {
-			self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
-			self.timer = new Timer(self.setMetadata.bind(self), function(result) {return result*1000;}, 1000);
-			self.timer.start();
-			//return self.setMetadata(track.api);
+			if (track.scraper) {
+				self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
+				self.timer = new Timer(self.setMetadata.bind(self), function(result) {return result*1000;}, 1000);
+				self.timer.start();
+				//return self.setMetadata(track.api);
+			}
 	
 		})
 		.fail(function (e) {
@@ -268,8 +270,10 @@ ControllerMetaradio.prototype.resume = function () {
 			});
 		})
 		.then(function () {
-			self.scraper = new (require(__dirname + '/scrapers/' + self.currentStation.scraper))();
-			self.setMetadata();
+			if (self.currentStation.scraper) {
+				self.scraper = new (require(__dirname + '/scrapers/' + self.currentStation.scraper))();
+				self.setMetadata();
+			}
 	
 		})
 		.fail(function (e) {
