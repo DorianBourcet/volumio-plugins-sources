@@ -204,12 +204,18 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 				//return self.setMetadata(track.api);
 			} else {
 				self.setPlayingTrackInfo(
-					self.currentStation.name,
+					'test 1',
 					null,
 					null,
 					self.currentStation.albumart,
-					self.currentStation.name
 				);
+				// self.setPlayingTrackInfo(
+				// 	self.currentStation.name,
+				// 	null,
+				// 	null,
+				// 	self.currentStation.albumart,
+				// 	self.currentStation.name
+				// );
 			}
 	
 		})
@@ -287,7 +293,6 @@ ControllerMetaradio.prototype.resume = function () {
 					null,
 					null,
 					self.currentStation.albumart,
-					self.currentStation.name
 				);
 			}
 	
@@ -508,7 +513,7 @@ ControllerMetaradio.prototype.getMetadata = function () {
 	return defer.promise;
 }
 
-ControllerMetaradio.prototype.setPlayingTrackInfo = function (title, artist, album, cover, trackType, startTime=null, endTime=null) {
+ControllerMetaradio.prototype.setPlayingTrackInfo = function (title, artist, album, cover, startTime=null, endTime=null) {
 	var self = this;
 	if (startTime && endTime) {
 		var duration = endTime - startTime;
@@ -562,7 +567,6 @@ ControllerMetaradio.prototype.setMetadata = function () {
 				result.artist,
 				result.album,
 				result.cover,
-				self.currentStation.name,
 				result.startTime,
 				result.endTime
 			);
