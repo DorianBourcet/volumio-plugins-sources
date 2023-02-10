@@ -492,56 +492,64 @@ ControllerMetaradio.prototype.getMetadata = function () {
 	return defer.promise;
 }
 
+ControllerMetaradio.prototype.setPlayingTrackInfo = function (title, artist, album, cover, trackType, startTime=null, endTime=null) {
+	var self = this;
+	if (startTime && endTime) {
+		var duration = endTime - startTime;
+		var seek = Date.now() - startTime * 1000;
+	}
+	var vState = self.commandRouter.stateMachine.getState();
+	var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
+	if (seek) { vState.seek = seek; }
+	vState.disableUiControls = true;
+
+	if (duration) {
+		vState.duration = duration;
+		queueItem.duration = duration;
+	}
+
+	vState.albumart = cover;
+	queueItem.albumart = cover;
+
+	vState.name = title;
+	queueItem.name = title;
+	vState.artist = artist;
+	queueItem.artist = artist;
+	vState.album = album;
+	queueItem.album = album;
+
+	queueItem.trackType = self.currentStation.name;
+	//vState.trackType = self.currentStation.name;
+
+	if (seek) {
+		self.commandRouter.stateMachine.currentSeek = seek;  // reset Volumio timer
+	}
+	if (startTime) {
+		self.commandRouter.stateMachine.playbackStart=startTime;
+	}
+	if (duration) {
+		self.commandRouter.stateMachine.currentSongDuration=duration;
+	}
+	self.commandRouter.stateMachine.askedForPrefetch=false;
+	self.commandRouter.stateMachine.prefetchDone=false;
+	self.commandRouter.stateMachine.simulateStopStartDone=false;
+
+	self.commandRouter.servicePushState(vState, self.serviceName);
+}
+
 ControllerMetaradio.prototype.setMetadata = function () {
 	var self = this;
 	return self.getMetadata()
 		.then(function (result) {
-			var duration = result.endTime - result.startTime;
-			var seek = Date.now() - result.startTime * 1000;
-			var vState = self.commandRouter.stateMachine.getState();
-			var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-			vState.seek = seek;
-			vState.disableUiControls = true;
-
-			vState.duration = duration;
-			queueItem.duration = duration;
-
-			vState.albumart = result.cover;
-			queueItem.albumart = result.cover;
-
-			vState.name =  result.title;
-			queueItem.name =  result.title;
-			vState.artist =  result.artist;
-			queueItem.artist =  result.artist;
-			vState.album = result.album;
-			queueItem.album = result.album;
-
-			queueItem.trackType = self.currentStation.name;
-			//vState.trackType = self.currentStation.name;
-
-			self.commandRouter.stateMachine.currentSeek = seek;  // reset Volumio timer
-			self.commandRouter.stateMachine.playbackStart=result.startTime;
-			self.commandRouter.stateMachine.currentSongDuration=duration;
-			self.commandRouter.stateMachine.askedForPrefetch=false;
-			self.commandRouter.stateMachine.prefetchDone=false;
-			self.commandRouter.stateMachine.simulateStopStartDone=false;
-
-			self.commandRouter.servicePushState(vState, self.serviceName);
-
-			/*self.mpdPlugin.getState().then(function (state) {
-				var vState = self.commandRouter.stateMachine.getState();
-				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-				queueItem.name = track.name;
-				//queueItem.trackType = track.name;
-				//vState.trackType = track.name;
-				//queueItem.bitrate = state.bitrate;
-				queueItem.samplerate = state.samplerate+' kHz';
-    		queueItem.bitdepth = state.bitdepth;
-				//self.commandRouter.servicePushState(vState, self.serviceName);
-				self.commandRouter.stateMachine.syncState(state, self.serviceName);
-			});*/
-
-			//return result.delayToRefresh;
+			self.setPlayingTrackInfo(
+				result.title,
+				result.artist,
+				result.album,
+				result.cover,
+				self.currentStation.name,
+				result.startTime,
+				result.endTime
+			);
 			return 5;
 		});
 }
