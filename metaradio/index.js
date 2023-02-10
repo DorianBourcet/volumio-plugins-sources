@@ -202,6 +202,14 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 				self.timer = new Timer(self.setMetadata.bind(self), function(result) {return result*1000;}, 1000);
 				self.timer.start();
 				//return self.setMetadata(track.api);
+			} else {
+				self.setPlayingTrackInfo(
+					self.currentStation.name,
+					null,
+					null,
+					self.currentStation.albumart,
+					self.currentStation.name
+				);
 			}
 	
 		})
@@ -273,6 +281,14 @@ ControllerMetaradio.prototype.resume = function () {
 			if (self.currentStation.scraper) {
 				self.scraper = new (require(__dirname + '/scrapers/' + self.currentStation.scraper))();
 				self.setMetadata();
+			} else {
+				self.setPlayingTrackInfo(
+					self.currentStation.name,
+					null,
+					null,
+					self.currentStation.albumart,
+					self.currentStation.name
+				);
 			}
 	
 		})
