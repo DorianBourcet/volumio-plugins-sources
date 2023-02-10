@@ -204,18 +204,11 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 				//return self.setMetadata(track.api);
 			} else {
 				self.setPlayingTrackInfo(
-					'test 1',
+					self.currentStation.name,
 					null,
 					null,
 					self.currentStation.albumart,
 				);
-				// self.setPlayingTrackInfo(
-				// 	self.currentStation.name,
-				// 	null,
-				// 	null,
-				// 	self.currentStation.albumart,
-				// 	self.currentStation.name
-				// );
 			}
 	
 		})
