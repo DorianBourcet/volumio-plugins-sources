@@ -237,14 +237,14 @@
         "title": "ICI Musique Québec",
         "uri": "webradiocanada/001",
         "url": "https://rcavliveaudio.akamaized.net/hls/live/2006650/M-7QQUE0_QUE/master.m3u8",
-        "logo": "rc_ici_musique.webp",
+        "logo": "rc_ici_musique.jpg",
         "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/83/classique/111"
       },
       {
         "title": "ICI Première Québec",
         "uri": "webradiocanada/002",
         "url": "https://rcavliveaudio.akamaized.net/hls/live/2006953/P-2QQUE0_QUE/master.m3u8",
-        "logo": "rc_ici_premiere.svg",
+        "logo": "rc_ici_premiere.jpg",
         "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/83/classique/111"
       }
     ],
