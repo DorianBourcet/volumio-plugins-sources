@@ -16,8 +16,27 @@ class RCIciPremiereScraper extends BaseScraper {
         }
       })
       .then(function (metadata) {
+        let found = metadata.schedules.find(item => item.broadcastingNetworkId == 3 && item.broadcastingStationId == 41);
+        if (!found) {return {};}
+        dayjs.extend(utc);
+        let now = dayjs().unix();
+        if (!found.trafficBroadcasts) {return {};}
+        let broadcast = found.trafficBroadcasts.find(item => dayjs(item.startsAt).unix() <= now && dayjs(item.endAt).unix() > now);
+        if (!broadcast) {return {};}
+        var [title] = jp.query(broadcast, '$.title');
+        var [artist] = jp.query(broadcast, '$.credits');
+        var [cover] = jp.query(broadcast, '$.picture.url');
+        cover = cover.replace('{1}','1x1').replace('{0}','400');
+        var [startTime] = jp.query(broadcast, '$.startsAt');
+        startTime = dayjs(startTime).unix();
+        var [endTime] = jp.query(broadcast, '$.endsAt');
+        endTime = dayjs(endTime).unix();
         return {
-          title: 'ICI Première Québec'
+          title,
+          artist,
+          cover,
+          startTime,
+          endTime,
         };
       });
   }
