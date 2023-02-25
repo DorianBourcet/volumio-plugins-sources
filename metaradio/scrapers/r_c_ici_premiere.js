@@ -21,7 +21,9 @@ class RCIciPremiereScraper extends BaseScraper {
         dayjs.extend(utc);
         let now = dayjs().unix();
         if (!found.trafficBroadcasts) {return {};}
-        let broadcast = found.trafficBroadcasts.find(item => dayjs(item.startsAt).unix() <= now && dayjs(item.endAt).unix() > now);
+        let broadcast = found.trafficBroadcasts.find(function(item) {
+          return dayjs(item.startsAt).unix() <= now && dayjs(item.endsAt).unix() > now;
+        });
         if (!broadcast) {return {};}
         var [title] = jp.query(broadcast, '$.title');
         var [artist] = jp.query(broadcast, '$.credits');
