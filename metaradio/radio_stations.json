@@ -231,7 +231,8 @@
         "uri": "webradiocanada/000",
         "url": "https://rcavliveaudio.akamaized.net/hls/live/2007000/MUSE/master.m3u8",
         "logo": "rc_ici_musique_classique.png",
-        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/83/classique/111"
+        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/83/classique/111",
+        "scraper": "r_c_ici_musique_classique"
       },
       {
         "title": "ICI Musique Québec",
