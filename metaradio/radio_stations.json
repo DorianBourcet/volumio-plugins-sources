@@ -287,19 +287,27 @@
         "scraper": "radio_nova"
       },
       {
-        "title": "Nova Danse",
-        "uri": "webradionova/003",
-        "url": "http://nova-dance.ice.infomaniak.ch/nova-dance-256.aac",
-        "logo": "nova_danse.jpg",
-        "api": "https://www.nova.fr/wp-json/radios/nova-danse",
-        "scraper": "radio_nova"
-      },
-      {
         "title": "Nova la Nuit",
-        "uri": "webradionova/004",
+        "uri": "webradionova/003",
         "url": "http://nova-ln.ice.infomaniak.ch/nova-ln-256.aac",
         "logo": "nova_la_nuit.jpg",
         "api": "https://www.nova.fr/wp-json/radios/nova-la-nuit",
+        "scraper": "radio_nova"
+      },
+      {
+        "title": "Nova Reggae",
+        "uri": "webradionova/004",
+        "url": "http://nova-reggae.ice.infomaniak.ch/nova-reggae-256.aac",
+        "logo": "nova_reggae.webp",
+        "api": "https://www.nova.fr/wp-json/radios/nova-reggae",
+        "scraper": "radio_nova"
+      },
+      {
+        "title": "Nova Soul",
+        "uri": "webradionova/005",
+        "url": "http://nova-reggae.ice.infomaniak.ch/nova-soul-256.aac",
+        "logo": "nova_soul.webp",
+        "api": "https://www.nova.fr/wp-json/radios/nova-soul",
         "scraper": "radio_nova"
       }
     ]
