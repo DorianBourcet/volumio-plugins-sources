@@ -199,7 +199,7 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 		.then(function () {
 			if (track.scraper) {
 				self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
-				self.timer = new Timer(self.setMetadata.bind(self), function(result) {return result*1000;}, 1000);
+				self.timer = new Timer(self.setMetadata.bind(self), function(result) {return result*1000;}, 0);
 				self.timer.start();
 				//return self.setMetadata(track.api);
 			} else {
