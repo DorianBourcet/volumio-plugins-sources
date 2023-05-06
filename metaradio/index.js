@@ -326,22 +326,37 @@ ControllerMetaradio.prototype.explodeUri = function(uri) {
 	var self = this;
 	var defer = libQ.defer();
 	var response = [];
-	var uris = uri.split('/');
-	var channel = parseInt(uris[1]);
-	var station = uris[0].substring(3);
+	var station;
+	if (uri.includes('://')) {
+		// a url was given
+		for (const group in self.radioStations) {
+			station = self.radioStations[group].find(item => item.url === uri);
+			if (station) {
+				console.debug('found station');
+				console.debug(station);
+				break;
+			}
+		}
+	} else {
+		var parts = uri.split('/');
+		var channel = parseInt(parts[1]);
+		var group = parts[0].substring(3);
+		station = self.radioStations[group][channel];
+	}
 
 	if (self.timer) {
 		self.timer.stop();
 	}
 	//let id = self.radioStations[station][channel].uri.replace(/[^a-zA-Z0-9]/g, '');
+	
 	response.push({
 		service: self.serviceName,
 		type: 'track',
-		albumart: '/albumart?sourceicon=music_service/'+self.serviceName+'/logos/'+self.radioStations[station][channel].logo,
-		uri: self.radioStations[station][channel].url,
-		name: self.radioStations[station][channel].title,
-		api: self.radioStations[station][channel].api,
-		scraper: self.radioStations[station][channel].scraper
+		albumart: '/albumart?sourceicon=music_service/'+self.serviceName+'/logos/'+station.logo,
+		uri: station.url,
+		name: station.title,
+		api: station.api,
+		scraper: station.scraper
 	});
 	defer.resolve(response);
 
