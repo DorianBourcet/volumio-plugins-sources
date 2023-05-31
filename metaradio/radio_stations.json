@@ -310,6 +310,16 @@
         "api": "https://www.nova.fr/wp-json/radios/nova-soul",
         "scraper": "radio_nova"
       }
+    ],
+    "tsfjazz": [
+      {
+        "title": "TSF Jazz",
+        "uri": "webtsfjazz/000",
+        "url": "https://tsfjazz.ice.infomaniak.ch/tsfjazz-high.mp3",
+        "logo": "tsf_jazz.jpg",
+        "api": "https://api.tsfjazz.com/api/homepage/tracklists?limit=1",
+        "scraper": "tsf_jazz"
+      }
     ]
   }
 }
