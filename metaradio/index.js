@@ -24,6 +24,7 @@ function ControllerMetaradio(context) {
 	self.timer = null;
 	self.scraper = null;
 	self.latestTitleInfo = null;
+	self.latestTitleStartTime = null;
 	self.titleInfoAttempt = 0;
   self.currentStation = {};
 	self.cache = new Cache();
@@ -450,35 +451,43 @@ ControllerMetaradio.prototype.getRadioI18nString = function (key) {
 ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
 	var self = this;
 
-	let base = {
-		title: self.currentStation.name,
-		cover: self.currentStation.albumart
-	}
-	let scraped = {...base, ...metadata};
 	let now = Math.floor(Date.now() / 1000);
 	let extraDelay = 5;
 
-	// if (scraped.title === undefined || scraped.title === null || scraped.title === false) {
-	// 	scraped.title = self.currentStation.name;
-	// }
-	if (scraped.startTime === undefined || scraped.startTime === null || scraped.startTime > now) {
-		scraped.startTime = now;
+	if (!metadata.title && !metadata.artist && !metadata.album) {
+		metadata.title = self.currentStation.name;
 	}
-	if (JSON.stringify(metadata) === '{}') {
-		scraped.endTime = now + 20;
+	if (!metadata.cover) {
+		metadata.cover = self.currentStation.albumart;
 	}
-	if (scraped.endTime === undefined || scraped.endTime === null || scraped.endTime < now) {
-		scraped.endTime = self.computeEndTime(scraped);
+	metadata.startTime = self.computeStartTime(metadata);
+	if (metadata.endTime === undefined || metadata.endTime === null || metadata.endTime < now) {
+		metadata.endTime = self.computeEndTime(metadata);
 		extraDelay = 0;
 	}
-	// if (scraped.cover === undefined || scraped.cover === null || scraped.cover === false) {
-	// 	scraped.cover = self.currentStation.albumart;
+	// if (metadata.cover === undefined || metadata.cover === null || metadata.cover === false) {
+	// 	metadata.cover = self.currentStation.albumart;
 	// }
-	if (scraped.delayToRefresh === undefined || scraped.delayToRefresh === null || scraped.delayToRefresh < 20) {
-		scraped.delayToRefresh = Math.max(scraped.endTime - now + extraDelay,20);
+	if (metadata.delayToRefresh === undefined || metadata.delayToRefresh === null || metadata.delayToRefresh < 20) {
+		metadata.delayToRefresh = Math.max(metadata.endTime - now + extraDelay,20);
 	}
 
-	return scraped;
+	return metadata;
+}
+
+ControllerMetaradio.prototype.computeStartTime = function (metadata) {
+	var titleInfo = [metadata.title, metadata.artist].join('-');
+	var now = Math.floor(Date.now() / 1000);
+	if (titleInfo !== self.latestTitleInfo) {
+		self.latestTitleInfo = titleInfo;
+		self.titleInfoAttempt = 0;
+		if (!metadata.startTime || metadata.startTime > now) {
+			self.latestTitleStartTime = now;
+		} else {
+			self.latestTitleStartTime = metadata.startTime;
+		}
+	}
+	return self.latestTitleStartTime;
 }
 
 ControllerMetaradio.prototype.computeEndTime = function (metadata) {
@@ -489,13 +498,18 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 	if (titleInfo !== self.latestTitleInfo) {
 		self.latestTitleInfo = titleInfo;
 		self.titleInfoAttempt = 0;
-
-		var seek = now - metadata.startTime;
-
-		if (seek < 180) {return now + 180 - seek;}
+		self.latestTitleStartTime = now;
 	}
-	else {
-		self.titleInfoAttempt++;
+	var seek = now - self.latestTitleStartTime;
+	self.titleInfoAttempt++;
+	if (seek < 180) {
+		return now + 180 - seek;
+	}
+	if (self.titleInfoAttempt >= 10) {
+		return now + 60;
+	}
+	if (self.titleInfoAttempt >= 20) {
+		return now + 90;
 	}
 
 	return now + 25;
