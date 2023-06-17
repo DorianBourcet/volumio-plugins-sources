@@ -23,7 +23,7 @@ class KcrwScraper extends BaseScraper {
         var [diffusionDate] = jp.query(metadata, '$.datetime');
         dayjs.extend(utc);
         dayjs.extend(timezone);
-        var startTime = dayjs.tz(diffusionDate, 'America/Los_Angeles').unix();
+        var startTime = dayjs(diffusionDate).unix();
 
         if (title.trim().toLowerCase() === '[break]') {
           return {};

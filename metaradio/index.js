@@ -9,6 +9,7 @@ var execSync = require('child_process').execSync;
 var test = require('./helpers/foo');
 var Timer = require('./helpers/timer');
 var Cache = require('./helpers/cache');
+var hash = require('object-hash');
 
 module.exports = ControllerMetaradio;
 
@@ -27,6 +28,7 @@ function ControllerMetaradio(context) {
 	self.titleInfoAttempt = 0;
   self.currentStation = {};
 	self.cache = new Cache();
+	self.computedStartTimes = {};
 }
 
 ControllerMetaradio.prototype.onVolumioStart = function()
@@ -462,23 +464,35 @@ ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
 	// 	scraped.title = self.currentStation.name;
 	// }
 	if (scraped.startTime === undefined || scraped.startTime === null || scraped.startTime > now) {
-		scraped.startTime = now;
+		scraped.startTime = self.computeStartTime(metadata);
 	}
 	if (JSON.stringify(metadata) === '{}') {
-		scraped.endTime = now + 20;
+		scraped.endTime = now + 25;
 	}
 	if (scraped.endTime === undefined || scraped.endTime === null || scraped.endTime < now) {
 		scraped.endTime = self.computeEndTime(scraped);
 		extraDelay = 0;
 	}
-	// if (scraped.cover === undefined || scraped.cover === null || scraped.cover === false) {
-	// 	scraped.cover = self.currentStation.albumart;
-	// }
+	if (scraped.cover === undefined || scraped.cover === null || scraped.cover === false) {
+		scraped.cover = self.currentStation.albumart;
+	}
 	if (scraped.delayToRefresh === undefined || scraped.delayToRefresh === null || scraped.delayToRefresh < 20) {
 		scraped.delayToRefresh = Math.max(scraped.endTime - now + extraDelay,20);
 	}
 
 	return scraped;
+}
+
+ControllerMetaradio.prototype.computeStartTime = function (metadata) {
+	var self = this;
+
+	let key = hash(metadata);
+  if (self.computedStartTimes[self.currentStation.name] === undefined
+	|| self.computedStartTimes[self.currentStation.name][key] === undefined) {
+		let now = Math.floor(Date.now() / 1000);
+		self.computedStartTimes = {...self.computedStartTimes, ...{[self.currentStation.name]: {[key]: now}}};
+	}
+	return self.computedStartTimes[self.currentStation.name][key];
 }
 
 ControllerMetaradio.prototype.computeEndTime = function (metadata) {
