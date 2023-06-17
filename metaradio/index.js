@@ -489,15 +489,19 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 	if (titleInfo !== self.latestTitleInfo) {
 		self.latestTitleInfo = titleInfo;
 		self.titleInfoAttempt = 0;
-
-		var seek = now - metadata.startTime;
-
-		if (seek < 180) {return now + 180 - seek;}
 	}
-	else {
-		self.titleInfoAttempt++;
+	self.titleInfoAttempt++;
+	if (self.titleInfoAttempt >= 20) {
+		return now + 85;
 	}
-
+	if (self.titleInfoAttempt >= 10) {
+		return now + 55;
+	}
+	if (self.titleInfoAttempt >= 5) {
+		return now + 40;
+	}
+	var seek = now - metadata.startTime;
+	if (seek < 180) {return now + 180 - seek;}
 	return now + 25;
 }
 
