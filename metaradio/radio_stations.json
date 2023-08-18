@@ -261,6 +261,16 @@
         "scraper": "radio_classique_qc"
       }
     ],
+    "radioihaveadream": [
+      {
+        "title": "Radio I Have A Dream",
+        "uri": "webradioihaveadream/000",
+        "url": "https://live.radio-ihaveadream.com/?type=http&nocache=392/;stream/1",
+        "logo": "radio_i_have_a_dream.png",
+        "api": "https://www.radio-ihaveadream.com/info-radio-live",
+        "scraper": "radio_i_have_a_dream"
+      }
+    ],
     "radionova": [
       {
         "title": "Radio Nova",
