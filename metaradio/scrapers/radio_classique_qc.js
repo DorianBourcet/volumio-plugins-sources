@@ -8,24 +8,17 @@ const timezone = require('dayjs/plugin/timezone');
 
 class RadioClassiqueQcScraper extends BaseScraper {
 
-  getMetadata(url) {
-    return this._fetchMetadata(url)
-      .then(function (eventResponse) {
-        if (eventResponse !== null) {
-          return JSON.parse(eventResponse);
-        }
-      })
-      .then(function (metadata) {
-        var [title] = jp.query(metadata, '$.artist');
-        var [artist] = jp.query(metadata, '$.title');
-        var [cover] = jp.query(metadata, '$.image');
+  _scrapeMetadata(response) {
+    const metadata = JSON.parse(response);
+    const [title] = jp.query(metadata, '$.artist');
+    const [artist] = jp.query(metadata, '$.title');
+    const [cover] = jp.query(metadata, '$.image');
 
-        return {
-          title,
-          artist,
-          cover
-        };
-      });
+    return {
+      title,
+      artist,
+      cover
+    };
   }
 
 }

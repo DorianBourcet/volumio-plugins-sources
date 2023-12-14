@@ -5,11 +5,22 @@ const http = require('https');
 
 class BaseScraper {
 
+  getMetadata(url) {
+    const self = this;
+    return this._fetchMetadata(url)
+      .then(function (response) {
+        console.log('RAW METADATA',response);
+        return self._scrapeMetadata(response);
+      });
+  }
+
   _fetchMetadata(url) {
     var defer = libQ.defer();
     http.get(url, (resp) => {
       if (resp.statusCode < 200 || resp.statusCode > 299) {
-          throw new Error('Failed to query the api');
+        console.log('FAILED TO QUERY API',url);
+        console.log('STATUS CODE',resp.statusCode);
+          defer.reject(new Error('Failed to query the api'));
       } else {
         let data = '';
         // A chunk of data has been received.
@@ -22,14 +33,14 @@ class BaseScraper {
         });
       }
     }).on("error", (err) => {
-      throw new Error('Failed to query the api');
+      defer.reject(err);
     });
     
     return defer.promise;
   };
 
-  getMetadata(url) {
-    throw new Error('Method "getMetadata" must be implemented.');
+  _scrapeMetadata(response) {
+    throw new Error('Method "_scrapeMetadata" must be implemented.');
   }
 }
 

@@ -8,33 +8,26 @@ const timezone = require('dayjs/plugin/timezone');
 
 class RadioNovaScraper extends BaseScraper {
 
-  getMetadata(url) {
-    return this._fetchMetadata(url)
-      .then(function (eventResponse) {
-        if (eventResponse !== null) {
-          return JSON.parse(eventResponse);
-        }
-      })
-      .then(function (metadata) {
-        var [title] = jp.query(metadata, '$.currentTrack.title');
-        var [artist] = jp.query(metadata, '$.currentTrack.artist');
-        var [cover] = jp.query(metadata, '$.currentTrack.image');
-        var [diffusionDate] = jp.query(metadata, '$.currentTrack.diffusion_date');
-        var [rawDuration] = jp.query(metadata, '$.currentTrack.duration');
-        dayjs.extend(utc);
-        dayjs.extend(timezone);
-        var startTime = dayjs.tz(diffusionDate, 'Europe/Paris').unix();
-        var [minutes,seconds] = rawDuration.split(':');
-        var endTime = startTime + minutes * 60 + (+seconds);
+  _scrapeMetadata(response) {
+    const metadata = JSON.parse(response);
+    const [title] = jp.query(metadata, '$.currentTrack.title');
+    const [artist] = jp.query(metadata, '$.currentTrack.artist');
+    const [cover] = jp.query(metadata, '$.currentTrack.image');
+    const [diffusionDate] = jp.query(metadata, '$.currentTrack.diffusion_date');
+    const [rawDuration] = jp.query(metadata, '$.currentTrack.duration');
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+    const startTime = dayjs.tz(diffusionDate, 'Europe/Paris').unix();
+    const [minutes,seconds] = rawDuration.split(':');
+    const endTime = startTime + minutes * 60 + (+seconds);
 
-        return {
-          title,
-          artist,
-          cover,
-          startTime,
-          endTime,
-        };
-      });
+    return {
+      title,
+      artist,
+      cover,
+      startTime,
+      endTime,
+    };
   }
 
 }

@@ -357,6 +357,7 @@ ControllerMetaradio.prototype.explodeUri = function(uri) {
 		albumart: '/albumart?sourceicon=music_service/'+self.serviceName+'/logos/'+station.logo,
 		uri: station.url,
 		name: station.title,
+		//slogan: 'slogan' in station ? station.slogan : station.title,
 		api: station.api,
 		scraper: station.scraper
 	});
@@ -444,43 +445,40 @@ ControllerMetaradio.prototype.getRadioI18nString = function (key) {
 	var self = this;
 
 	if (self.i18nStrings[key] !== undefined)
-			return self.i18nStrings[key];
+		return self.i18nStrings[key];
 	else
-			return self.i18nStringsDefaults[key];
+		return self.i18nStringsDefaults[key];
 };
 
-ControllerMetaradio.prototype.hydrateMetadata = function (metadata) {
+ControllerMetaradio.prototype.hydrateMetadata = function (scraped) {
 	var self = this;
 
+	let now = Math.floor(Date.now() / 1000);
 	let base = {
 		title: self.currentStation.name,
-		cover: self.currentStation.albumart
+		cover: self.currentStation.albumart,
 	}
-	let scraped = {...base, ...metadata};
-	let now = Math.floor(Date.now() / 1000);
+	let metadata = {...base, ...scraped};
 	let extraDelay = 5;
 
-	// if (scraped.title === undefined || scraped.title === null || scraped.title === false) {
-	// 	scraped.title = self.currentStation.name;
-	// }
-	if (scraped.startTime === undefined || scraped.startTime === null || scraped.startTime > now) {
-		scraped.startTime = self.computeStartTime(metadata);
+	if (metadata.startTime === undefined || metadata.startTime === null || metadata.startTime > now) {
+		metadata.startTime = self.computeStartTime(metadata);
 	}
-	if (JSON.stringify(metadata) === '{}') {
-		scraped.endTime = now + 25;
+	if (JSON.stringify(scraped) === '{}') {
+		metadata.endTime = now + 900;
 	}
-	if (scraped.endTime === undefined || scraped.endTime === null || scraped.endTime < now) {
-		scraped.endTime = self.computeEndTime(scraped);
+	if (metadata.endTime === undefined || metadata.endTime === null || metadata.endTime < now) {
+		metadata.endTime = self.computeEndTime(metadata);
 		extraDelay = 0;
 	}
-	if (scraped.cover === undefined || scraped.cover === null || scraped.cover === false) {
-		scraped.cover = self.currentStation.albumart;
+	if (metadata.cover === undefined || metadata.cover === null || metadata.cover === false) {
+		metadata.cover = self.currentStation.albumart;
 	}
-	if (scraped.delayToRefresh === undefined || scraped.delayToRefresh === null || scraped.delayToRefresh < 20) {
-		scraped.delayToRefresh = Math.max(scraped.endTime - now + extraDelay,20);
+	if (metadata.delayToRefresh === undefined || metadata.delayToRefresh === null || metadata.delayToRefresh < 20) {
+		metadata.delayToRefresh = Math.max(metadata.endTime - now + extraDelay,20);
 	}
 
-	return scraped;
+	return metadata;
 }
 
 ControllerMetaradio.prototype.computeStartTime = function (metadata) {
@@ -530,6 +528,11 @@ ControllerMetaradio.prototype.getMetadata = function () {
 				result = self.hydrateMetadata(result);
 				self.cache.set(key, result, result.delayToRefresh);
 
+				defer.resolve(result);
+			})
+			.fail(function (e) {
+				const result = self.hydrateMetadata({});
+				self.cache.set(key, result, 900);
 				defer.resolve(result);
 			});
 	} else {

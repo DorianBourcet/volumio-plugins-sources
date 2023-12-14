@@ -8,35 +8,28 @@ const timezone = require('dayjs/plugin/timezone');
 
 class KcrwScraper extends BaseScraper {
 
-  getMetadata(url) {
-    return this._fetchMetadata(url)
-      .then(function (eventResponse) {
-        if (eventResponse !== null) {
-          return JSON.parse(eventResponse);
-        }
-      })
-      .then(function (metadata) {
-        var [title] = jp.query(metadata, '$.title');
-        var [artist] = jp.query(metadata, '$.artist');
-        var [album] = jp.query(metadata, '$.album');
-        var [cover] = jp.query(metadata, '$.albumImageLarge');
-        var [diffusionDate] = jp.query(metadata, '$.datetime');
-        dayjs.extend(utc);
-        dayjs.extend(timezone);
-        var startTime = dayjs(diffusionDate).unix();
+  _scrapeMetadata(response) {
+    const metadata = JSON.parse(response);
+    const [title] = jp.query(metadata, '$.title');
+    const [artist] = jp.query(metadata, '$.artist');
+    const [album] = jp.query(metadata, '$.album');
+    const [cover] = jp.query(metadata, '$.albumImageLarge');
+    const [diffusionDate] = jp.query(metadata, '$.datetime');
+    dayjs.extend(utc);
+    dayjs.extend(timezone);
+    const startTime = dayjs(diffusionDate).unix();
 
-        if (title.trim().toLowerCase() === '[break]') {
-          return {};
-        }
+    if (title.trim().toLowerCase() === '[break]') {
+      return {};
+    }
 
-        return {
-          title,
-          artist,
-          album,
-          cover,
-          startTime,
-        };
-      });
+    return {
+      title,
+      artist,
+      album,
+      cover,
+      startTime,
+    };
   }
 
 }
