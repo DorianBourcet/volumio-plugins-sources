@@ -13,11 +13,13 @@ class RadioFranceScraper extends BaseScraper {
     let [cover] = jp.query(metadata, '$.now.cardVisual.webpSrc');
     const [startTime] = jp.query(metadata, '$.now.startTime');
     const [endTime] = jp.query(metadata, '$.now.endTime');
+    let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
     cover = cover.replace(/\/250x250_/,'/400x400_');
+    delayToRefresh = delayToRefresh / 1000;
 
-    // if (title === 'Le direct') {
-    //   return {};
-    // }
+    if (title === 'Le direct') {
+      return {};
+    }
 
     return {
       title,
@@ -26,6 +28,7 @@ class RadioFranceScraper extends BaseScraper {
       cover,
       startTime,
       endTime,
+      delayToRefresh,
     };
   }
 

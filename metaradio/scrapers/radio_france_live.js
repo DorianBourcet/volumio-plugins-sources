@@ -12,8 +12,13 @@ class RadioFranceLiveScraper extends BaseScraper {
     let [cover] = jp.query(metadata, '$.now.visuals.player.webpSrc');
     const [startTime] = jp.query(metadata, '$.now.media.startTime');
     const [endTime] = jp.query(metadata, '$.now.media.endTime');
-
+    let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
+    delayToRefresh = delayToRefresh / 1000;
     cover = cover.replace(/\/200x200_/,'/400x400_');
+
+    if (title === 'Le direct') {
+      return {};
+    }
 
     return {
       title,
@@ -21,6 +26,7 @@ class RadioFranceLiveScraper extends BaseScraper {
       cover,
       startTime,
       endTime,
+      delayToRefresh,
     };
   }
 

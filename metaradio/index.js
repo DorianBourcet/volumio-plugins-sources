@@ -465,7 +465,7 @@ ControllerMetaradio.prototype.hydrateMetadata = function (scraped) {
 		metadata.startTime = self.computeStartTime(metadata);
 	}
 	if (JSON.stringify(scraped) === '{}') {
-		metadata.endTime = now + 900;
+		metadata.endTime = now + 300;
 	}
 	if (metadata.endTime === undefined || metadata.endTime === null || metadata.endTime < now) {
 		metadata.endTime = self.computeEndTime(metadata);
@@ -512,8 +512,14 @@ ControllerMetaradio.prototype.computeEndTime = function (metadata) {
 	if (self.titleInfoAttempt >= 5) {
 		return now + 40;
 	}
+	if (self.titleInfoAttempt == 2) {
+		return now + 60;
+	}
+	if (self.titleInfoAttempt == 1) {
+		return now + 30;
+	}
 	var seek = now - metadata.startTime;
-	if (seek < 180) {return now + 180 - seek;}
+	if (seek < 90) {return now + 90 - seek;}
 	return now + 25;
 }
 
@@ -525,14 +531,16 @@ ControllerMetaradio.prototype.getMetadata = function () {
 	if (cachedMetadata === undefined) {
 		self.scraper.getMetadata(self.currentStation.api)
 			.then(function (result) {
+				console.log('SCRAPED METADATA',result);
 				result = self.hydrateMetadata(result);
+				console.log('HYDRATED METADATA',result);
 				self.cache.set(key, result, result.delayToRefresh);
 
 				defer.resolve(result);
 			})
 			.fail(function (e) {
 				const result = self.hydrateMetadata({});
-				self.cache.set(key, result, 900);
+				self.cache.set(key, result, 300);
 				defer.resolve(result);
 			});
 	} else {
@@ -624,6 +632,6 @@ ControllerMetaradio.prototype.resetPlayingTrack = function () {
 	queueItem.album = null;
 	queueItem.samplerate = null;
 	vState.samplerate = null;
-  queueItem.bitdepth = null;
+  	queueItem.bitdepth = null;
 	vState.bitdepth = null;
 }
