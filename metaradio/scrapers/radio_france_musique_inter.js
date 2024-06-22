@@ -3,24 +3,21 @@
 const jp = require('jsonpath');
 const BaseScraper = require('./base');
 
-class RadioFranceScraper extends BaseScraper {
+class RadioFranceMusiqueInterScraper extends BaseScraper {
 
   _scrapeMetadata(response) {
     const metadata = JSON.parse(response);
-    const [title] = jp.query(metadata, '$.now.firstLine.title');
+    const [title] = jp.query(metadata, '$.now.firstLine');
     if (title === 'Le direct') {
       return {};
     }
-    const [artist] = jp.query(metadata, '$.now.secondLine.title');
-    let [album] = jp.query(metadata, '$.now.song.release.title');
+    const [artist] = jp.query(metadata, '$.now.secondLine');
+    let [album] = jp.query(metadata, '$.now.song.title');
     const [year] = jp.query(metadata, '$.now.song.year');
-    let [cover] = jp.query(metadata, '$.now.visuals.card.webpSrc');
+    let [cover] = jp.query(metadata, '$.now.visual_cover_400x400.webpSrc');
     const [startTime] = jp.query(metadata, '$.now.startTime');
     const [endTime] = jp.query(metadata, '$.now.endTime');
     let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
-    if (cover) {
-      cover = cover.replace(/\/200x200_/,'/400x400_');
-    }
     if (year) {
       album = album + ' (' + year + ')';
     }
@@ -41,4 +38,4 @@ class RadioFranceScraper extends BaseScraper {
 
 }
 
-module.exports = RadioFranceScraper;
+module.exports = RadioFranceMusiqueInterScraper;

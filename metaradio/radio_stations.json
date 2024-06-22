@@ -19,7 +19,7 @@
         "uri": "webfip/000",
         "url": "http://icecast.radiofrance.fr/fip-hifi.aac",
         "logo": "fip.svg",
-        "api": "https://www.radiofrance.fr/fip/api/live/webradios/fip",
+        "api": "https://www.radiofrance.fr/fip/api/live",
         "scraper": "radio_france"
       },
       {
@@ -129,6 +129,14 @@
         "logo": "france_inter.webp",
         "api": "https://www.radiofrance.fr/franceinter/api/live",
         "scraper": "radio_france_live"
+      },
+      {
+        "title": "La musique d'Inter",
+        "uri": "webfranceinter/001",
+        "url": "http://icecast.radiofrance.fr/franceinterlamusiqueinter-hifi.aac",
+        "logo": "france_inter.webp",
+        "api": "https://www.radiofrance.fr/franceinter/la-musique-inter/api/webradio",
+        "scraper": "radio_france_musique_inter"
       }
     ],
     "francemusique": [
@@ -165,7 +173,7 @@
         "scraper": "radio_france"
       },
       {
-        "title": "France Musique Concerts Radio France",
+        "title": "France Musique Concert",
         "uri": "webfrancemusique/004",
         "url": "https://icecast.radiofrance.fr/francemusiqueconcertsradiofrance-hifi.aac",
         "logo": "france_musique_concerts_radio_france.webp",
@@ -210,6 +218,14 @@
         "url": "https://icecast.radiofrance.fr/francemusiqueopera-hifi.aac",
         "logo": "france_musique_opera.webp",
         "api": "https://www.radiofrance.fr/francemusique/api/live/webradios/francemusique_opera",
+        "scraper": "radio_france"
+      },
+      {
+        "title": "France Musique Piano Zen",
+        "uri": "webfrancemusique/010",
+        "url": "https://icecast.radiofrance.fr/francemusiquepianozen-hifi.aac",
+        "logo": "france_musique_piano_zen.jpg",
+        "api": "https://www.radiofrance.fr/francemusique/api/live/webradios/francemusique_piano_zen",
         "scraper": "radio_france"
       }
     ],

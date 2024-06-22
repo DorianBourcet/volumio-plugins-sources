@@ -26,9 +26,10 @@ function ControllerMetaradio(context) {
 	self.scraper = null;
 	self.latestTitleInfo = null;
 	self.titleInfoAttempt = 0;
-  self.currentStation = {};
+  	self.currentStation = {};
 	self.cache = new Cache();
 	self.computedStartTimes = {};
+	self.scrapingFailureCount = 0;
 }
 
 ControllerMetaradio.prototype.onVolumioStart = function()
@@ -454,28 +455,28 @@ ControllerMetaradio.prototype.hydrateMetadata = function (scraped) {
 	var self = this;
 
 	let now = Math.floor(Date.now() / 1000);
-	let base = {
-		title: self.currentStation.name,
-		cover: self.currentStation.albumart,
-	}
-	let metadata = {...base, ...scraped};
+	let metadata = {...scraped};
 	let extraDelay = 5;
 
-	if (metadata.startTime === undefined || metadata.startTime === null || metadata.startTime > now) {
-		metadata.startTime = self.computeStartTime(metadata);
-	}
-	if (JSON.stringify(scraped) === '{}') {
-		metadata.endTime = now + 300;
-	}
-	if (metadata.endTime === undefined || metadata.endTime === null || metadata.endTime < now) {
-		metadata.endTime = self.computeEndTime(metadata);
-		extraDelay = 0;
-	}
+	// if (metadata.startTime === undefined || metadata.startTime === null || metadata.startTime > now) {
+	// 	metadata.startTime = self.computeStartTime(metadata);
+	// }
+	// if (JSON.stringify(scraped) === '{}') {
+	// 	metadata.endTime = now + 300;
+	// }
+	// if (metadata.endTime === undefined || metadata.endTime === null || metadata.endTime < now) {
+	// 	metadata.endTime = self.computeEndTime(metadata);
+	// 	extraDelay = 0;
+	// }
 	if (metadata.cover === undefined || metadata.cover === null || metadata.cover === false) {
 		metadata.cover = self.currentStation.albumart;
 	}
 	if (metadata.delayToRefresh === undefined || metadata.delayToRefresh === null || metadata.delayToRefresh < 20) {
-		metadata.delayToRefresh = Math.max(metadata.endTime - now + extraDelay,20);
+		if (metadata.endTime > now) {
+			metadata.delayToRefresh = Math.max(metadata.endTime - now + extraDelay,20);
+		} else {
+			metadata.delayToRefresh = 60;
+		}
 	}
 
 	return metadata;
@@ -531,6 +532,7 @@ ControllerMetaradio.prototype.getMetadata = function () {
 	if (cachedMetadata === undefined) {
 		self.scraper.getMetadata(self.currentStation.api)
 			.then(function (result) {
+				self.scrapingFailureCount = 0;
 				console.log('SCRAPED METADATA',result);
 				result = self.hydrateMetadata(result);
 				console.log('HYDRATED METADATA',result);
@@ -539,8 +541,14 @@ ControllerMetaradio.prototype.getMetadata = function () {
 				defer.resolve(result);
 			})
 			.fail(function (e) {
-				const result = self.hydrateMetadata({});
-				self.cache.set(key, result, 300);
+				console.log('FAILED SCRAPING METADATA',e);
+				const result = {
+					title: self.currentStation.name,
+					artist: self.currentStation.name,
+					album: self.currentStation.name,
+					cover: self.currentStation.albumart,
+				};
+				self.cache.set(key, result, self.computeScrapingFailureDtr());
 				defer.resolve(result);
 			});
 	} else {
@@ -550,20 +558,49 @@ ControllerMetaradio.prototype.getMetadata = function () {
 	return defer.promise;
 }
 
+ControllerMetaradio.prototype.computeScrapingFailureDtr = function () {
+	var self = this;
+	self.scrapingFailureCount++;
+	if (self.scrapingFailureCount == 1) {
+		return 15;
+	}
+	if (self.scrapingFailureCount == 2) {
+		return 60;
+	}
+	if (self.scrapingFailureCount == 3) {
+		return 120;
+	}
+	if (self.scrapingFailureCount == 4) {
+		return 300;
+	}
+	if (self.scrapingFailureCount == 5) {
+		return 600;
+	}
+	return 900;
+}
+
 ControllerMetaradio.prototype.setPlayingTrackInfo = function (title, artist, album, cover, startTime=null, endTime=null) {
 	var self = this;
-	if (startTime && endTime) {
-		var duration = endTime - startTime;
+	if (startTime) {
 		var seek = Date.now() - startTime * 1000;
+		self.commandRouter.stateMachine.playbackStart = startTime;
+		if (endTime) {
+			var duration = endTime - startTime;
+		}
 	}
+	
 	var vState = self.commandRouter.stateMachine.getState();
 	var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-	if (seek) { vState.seek = seek; }
+	if (seek) {
+		vState.seek = seek;
+		self.commandRouter.stateMachine.currentSeek = seek;  // reset Volumio timer
+	}
 	vState.disableUiControls = true;
 
 	if (duration) {
 		vState.duration = duration;
 		queueItem.duration = duration;
+		self.commandRouter.stateMachine.currentSongDuration = duration;
 	}
 
 	vState.albumart = cover;
@@ -579,15 +616,6 @@ ControllerMetaradio.prototype.setPlayingTrackInfo = function (title, artist, alb
 	queueItem.trackType = self.currentStation.name;
 	//vState.trackType = self.currentStation.name;
 
-	if (seek) {
-		self.commandRouter.stateMachine.currentSeek = seek;  // reset Volumio timer
-	}
-	if (startTime) {
-		self.commandRouter.stateMachine.playbackStart=startTime;
-	}
-	if (duration) {
-		self.commandRouter.stateMachine.currentSongDuration=duration;
-	}
 	self.commandRouter.stateMachine.askedForPrefetch=false;
 	self.commandRouter.stateMachine.prefetchDone=false;
 	self.commandRouter.stateMachine.simulateStopStartDone=false;
