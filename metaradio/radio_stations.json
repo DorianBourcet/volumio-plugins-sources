@@ -134,7 +134,7 @@
         "title": "La musique d'Inter",
         "uri": "webfranceinter/001",
         "url": "http://icecast.radiofrance.fr/franceinterlamusiqueinter-hifi.aac",
-        "logo": "france_inter.webp",
+        "logo": "musique_inter.jpg",
         "api": "https://www.radiofrance.fr/franceinter/la-musique-inter/api/webradio",
         "scraper": "radio_france_musique_inter"
       }
