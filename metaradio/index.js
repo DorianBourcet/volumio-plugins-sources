@@ -472,7 +472,7 @@ ControllerMetaradio.prototype.hydrateMetadata = function (scraped) {
 		metadata.title = self.currentStation.name;
 		metadata.artist = self.currentStation.name;
 		metadata.album = null;
-		metaradio.cover = self.currentStation.albumart;
+		metadata.cover = self.currentStation.albumart;
 	}
 	else if (metadata.cover === undefined || metadata.cover === null || metadata.cover === false) {
 		metadata.cover = self.currentStation.albumart;
@@ -609,6 +609,9 @@ ControllerMetaradio.prototype.setPlayingTrackInfo = function (title, cover, arti
 	if (seek) {
 		vState.seek = seek;
 		self.commandRouter.stateMachine.currentSeek = seek;  // reset Volumio timer
+	} else {
+		vState.seek = 0;
+		self.commandRouter.stateMachine.currentSeek = 0;  // reset Volumio timer
 	}
 	vState.disableUiControls = true;
 
@@ -616,6 +619,10 @@ ControllerMetaradio.prototype.setPlayingTrackInfo = function (title, cover, arti
 		vState.duration = duration;
 		queueItem.duration = duration;
 		self.commandRouter.stateMachine.currentSongDuration = duration;
+	} else {
+		vState.duration = 0;
+		queueItem.duration = 0;
+		self.commandRouter.stateMachine.currentSongDuration = 0;
 	}
 
 	vState.albumart = cover;
