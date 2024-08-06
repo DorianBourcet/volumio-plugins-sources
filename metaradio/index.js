@@ -472,8 +472,9 @@ ControllerMetaradio.prototype.hydrateMetadata = function (scraped) {
 		metadata.title = self.currentStation.name;
 		metadata.artist = self.currentStation.name;
 		metadata.album = null;
+		metaradio.cover = self.currentStation.albumart;
 	}
-	if (metadata.cover === undefined || metadata.cover === null || metadata.cover === false) {
+	else if (metadata.cover === undefined || metadata.cover === null || metadata.cover === false) {
 		metadata.cover = self.currentStation.albumart;
 	}
 	if (metadata.delayToRefresh === undefined || metadata.delayToRefresh === null || metadata.delayToRefresh < 20) {
@@ -547,20 +548,29 @@ ControllerMetaradio.prototype.getMetadata = function () {
 			})
 			.fail(function (e) {
 				console.log('FAILED SCRAPING METADATA',e);
-				const result = {
-					title: self.currentStation.name,
-					artist: self.currentStation.name,
-					album: self.currentStation.name,
-					cover: self.currentStation.albumart,
-				};
-				self.cache.set(key, result, self.computeScrapingFailureDtr());
+				self.cache.set(key, self.getCurrentStationMetadata(), self.computeScrapingFailureDtr());
 				defer.resolve(result);
 			});
 	} else {
+		// var now = Math.floor(Date.now() / 1000);
+		// if (cachedMetadata.endTime && cachedMetadata.endTime < now) {
+		// 	console.log('EXPIRED, GETTING CURRENT STATION INFO', cachedMetadata.endTime);
+		// 	defer.resolve(self.getCurrentStationMetadata());
+		// }
 		defer.resolve(cachedMetadata);
 	}
 
 	return defer.promise;
+}
+
+ControllerMetaradio.prototype.getCurrentStationMetadata = function () {
+	var self = this;
+	return {
+		title: self.currentStation.name,
+		artist: self.currentStation.name,
+		album: null,
+		cover: self.currentStation.albumart,
+	};
 }
 
 ControllerMetaradio.prototype.computeScrapingFailureDtr = function () {

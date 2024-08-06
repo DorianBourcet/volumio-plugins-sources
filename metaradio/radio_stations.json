@@ -20,7 +20,7 @@
         "url": "http://icecast.radiofrance.fr/fip-hifi.aac",
         "logo": "fip.svg",
         "api": "https://www.radiofrance.fr/fip/api/live",
-        "scraper": "radio_france"
+        "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Electro",
@@ -28,7 +28,7 @@
         "url": "http://icecast.radiofrance.fr/fipelectro-hifi.aac",
         "logo": "fip_electro.webp",
         "api": "https://www.radiofrance.fr/fip/api/live/webradios/fip_electro",
-        "scraper": "radio_france"
+        "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Groove",
@@ -36,7 +36,7 @@
         "url": "http://icecast.radiofrance.fr/fipgroove-hifi.aac",
         "logo": "fip_groove.webp",
         "api": "https://www.radiofrance.fr/fip/api/live/webradios/fip_groove",
-        "scraper": "radio_france"
+        "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Hip-Hop",
@@ -44,7 +44,7 @@
         "url": "http://icecast.radiofrance.fr/fiphiphop-hifi.aac",
         "logo": "fip_hiphop.webp",
         "api": "https://www.radiofrance.fr/fip/api/live/webradios/fip_hiphop",
-        "scraper": "radio_france"
+        "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Jazz",
@@ -52,7 +52,7 @@
         "url": "http://icecast.radiofrance.fr/fipjazz-hifi.aac",
         "logo": "fip_jazz.webp",
         "api": "https://www.radiofrance.fr/fip/api/live/webradios/fip_jazz",
-        "scraper": "radio_france"
+        "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Metal",
@@ -60,7 +60,7 @@
         "url": "http://icecast.radiofrance.fr/fipmetal-hifi.aac",
         "logo": "fip_metal.webp",
         "api": "https://www.radiofrance.fr/fip/api/live/webradios/fip_metal",
-        "scraper": "radio_france"
+        "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Monde",
@@ -68,7 +68,7 @@
         "url": "http://icecast.radiofrance.fr/fipworld-hifi.aac",
         "logo": "fip_monde.webp",
         "api": "https://www.radiofrance.fr/fip/api/live/webradios/fip_world",
-        "scraper": "radio_france"
+        "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Nouveautés",
@@ -76,7 +76,7 @@
         "url": "http://icecast.radiofrance.fr/fipnouveautes-hifi.aac",
         "logo": "fip_nouveautes.webp",
         "api": "https://www.radiofrance.fr/fip/api/live/webradios/fip_nouveautes",
-        "scraper": "radio_france"
+        "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Pop",
@@ -84,7 +84,7 @@
         "url": "http://icecast.radiofrance.fr/fippop-hifi.aac",
         "logo": "fip_pop.webp",
         "api": "https://www.radiofrance.fr/fip/api/live/webradios/fip_pop",
-        "scraper": "radio_france"
+        "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Reggae",
@@ -92,7 +92,7 @@
         "url": "http://icecast.radiofrance.fr/fipreggae-hifi.aac",
         "logo": "fip_reggae.webp",
         "api": "https://www.radiofrance.fr/fip/api/live/webradios/fip_reggae",
-        "scraper": "radio_france"
+        "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Rock",
@@ -100,7 +100,7 @@
         "url": "http://icecast.radiofrance.fr/fiprock-hifi.aac",
         "logo": "fip_rock.webp",
         "api": "https://www.radiofrance.fr/fip/api/live/webradios/fip_rock",
-        "scraper": "radio_france"
+        "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Sacré Français",
@@ -108,7 +108,7 @@
         "url": "http://icecast.radiofrance.fr/fipsacrefrancais-hifi.aac",
         "logo": "fip_sacre_francais.webp",
         "api": "https://www.radiofrance.fr/fip/api/live/webradios/fip_sacre_francais",
-        "scraper": "radio_france"
+        "scraper": "radio_france_high_def"
       }
     ],
     "franceculture": [

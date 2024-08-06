@@ -15,10 +15,10 @@ class RadioFranceLiveScraper extends BaseScraper {
     let [cover] = jp.query(metadata, '$.now.visuals.player.webpSrc');
     const [startTime] = jp.query(metadata, '$.now.media.startTime');
     const [endTime] = jp.query(metadata, '$.now.media.endTime');
-    let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
-    if (delayToRefresh) {
-      delayToRefresh = delayToRefresh / 1000;
-    }
+    // let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
+    // if (delayToRefresh) {
+    //   delayToRefresh = delayToRefresh / 1000 + 5;
+    // }
     if (cover) {
       cover = cover.replace(/\/200x200_/,'/400x400_');
     }
@@ -29,7 +29,7 @@ class RadioFranceLiveScraper extends BaseScraper {
       cover,
       startTime,
       endTime,
-      delayToRefresh,
+      // delayToRefresh,
     };
   }
 

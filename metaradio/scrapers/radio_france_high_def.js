@@ -3,7 +3,7 @@
 const jp = require('jsonpath');
 const BaseScraper = require('./base');
 
-class RadioFranceScraper extends BaseScraper {
+class RadioFranceHighDefScraper extends BaseScraper {
 
   _scrapeMetadata(response) {
     const metadata = JSON.parse(response);
@@ -14,13 +14,13 @@ class RadioFranceScraper extends BaseScraper {
     const [artist] = jp.query(metadata, '$.now.secondLine.title');
     let [album] = jp.query(metadata, '$.now.song.release.title');
     const [year] = jp.query(metadata, '$.now.song.year');
-    const [cover] = jp.query(metadata, '$.now.visuals.card.webpSrc');
+    let [cover] = jp.query(metadata, '$.now.visuals.card.webpSrc');
     const [startTime] = jp.query(metadata, '$.now.startTime');
     const [endTime] = jp.query(metadata, '$.now.endTime');
-    let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
-    // if (cover) {
-    //   cover = cover.replace(/\/200x200_/,'/400x400_');
-    // }
+    // let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
+    if (cover) {
+      cover = cover.replace(/\/200x200_/,'/400x400_');
+    }
     if (year) {
       album = album + ' (' + year + ')';
     }
@@ -41,4 +41,4 @@ class RadioFranceScraper extends BaseScraper {
 
 }
 
-module.exports = RadioFranceScraper;
+module.exports = RadioFranceHighDefScraper;

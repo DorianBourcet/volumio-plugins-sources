@@ -17,13 +17,13 @@ class RadioFranceMusiqueInterScraper extends BaseScraper {
     let [cover] = jp.query(metadata, '$.now.visual_cover_400x400.webpSrc');
     const [startTime] = jp.query(metadata, '$.now.startTime');
     const [endTime] = jp.query(metadata, '$.now.endTime');
-    let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
+    // let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
     if (year) {
       album = album + ' (' + year + ')';
     }
-    if (delayToRefresh) {
-      delayToRefresh = delayToRefresh / 1000;
-    }
+    // if (delayToRefresh) {
+    //   delayToRefresh = delayToRefresh / 1000 + 5;
+    // }
 
     return {
       title,
@@ -32,7 +32,7 @@ class RadioFranceMusiqueInterScraper extends BaseScraper {
       cover,
       startTime,
       endTime,
-      delayToRefresh,
+      // delayToRefresh,
     };
   }
 
