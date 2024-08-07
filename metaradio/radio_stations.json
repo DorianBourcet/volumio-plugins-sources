@@ -243,7 +243,7 @@
       {
         "title": "KCRW Eclectic 24",
         "uri": "webkcrw/000",
-        "url": "https://kcrw.streamguys1.com/kcrw_192k_mp3_e24_internet_radio",
+        "url": "https://streams.kcrw.com/e24_mp3",
         "logo": "kcrw_eclectic_24.png",
         "api": "https://tracklist-api.kcrw.com/Music",
         "scraper": "kcrw"
@@ -259,7 +259,7 @@
         "scraper": "r_c_ici_musique_classique"
       },
       {
-        "title": "ICI Musique Québec",
+        "title": "ICI Musique",
         "uri": "webradiocanada/001",
         "url": "https://rcavliveaudio.akamaized.net/hls/live/2006650/M-7QQUE0_QUE/master.m3u8",
         "logo": "rc_ici_musique.jpg",
@@ -267,7 +267,7 @@
         "scraper": "r_c_ici_musique"
       },
       {
-        "title": "ICI Première Québec",
+        "title": "ICI Première",
         "uri": "webradiocanada/002",
         "url": "https://rcavliveaudio.akamaized.net/hls/live/2006953/P-2QQUE0_QUE/master.m3u8",
         "logo": "rc_ici_premiere.jpg",
@@ -277,7 +277,7 @@
     ],
     "radioclassiqueqc": [
       {
-        "title": "Radio Classique Québec",
+        "title": "Radio Classique",
         "uri": "webradioclassiqueqc/000",
         "url": "https://listen.radioking.com/radio/256885/stream/301510",
         "logo": "radio_classique_quebec.jpeg",
