@@ -15,6 +15,10 @@ class TsfJazzScraper extends BaseScraper {
     const [duration] = jp.query(metadata, '$.data.0.track.duration');
     startTime = dayjs(startTime).unix();
     const endTime = startTime + duration;
+    // var now = Math.floor(Date.now() / 1000);
+    // if (now > endTime + 5) {
+    //   return {};
+    // }
 
     return {
       title,

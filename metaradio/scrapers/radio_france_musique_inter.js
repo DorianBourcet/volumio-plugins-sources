@@ -15,11 +15,17 @@ class RadioFranceMusiqueInterScraper extends BaseScraper {
     let [album] = jp.query(metadata, '$.now.song.title');
     const [year] = jp.query(metadata, '$.now.song.year');
     let [cover] = jp.query(metadata, '$.now.visual_cover_400x400.webpSrc');
-    const [startTime] = jp.query(metadata, '$.now.startTime');
-    const [endTime] = jp.query(metadata, '$.now.endTime');
+    let [startTime] = jp.query(metadata, '$.now.startTime');
+    let [endTime] = jp.query(metadata, '$.now.endTime');
     // let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
     if (year) {
       album = album + ' (' + year + ')';
+    }
+    if (startTime) {
+      startTime = startTime + 7;
+    }
+    if (endTime) {
+      endTime = endTime + 7;
     }
     // if (delayToRefresh) {
     //   delayToRefresh = delayToRefresh / 1000 + 5;

@@ -11,6 +11,9 @@ class BaseScraper {
       .then(function (response) {
         console.log('RAW METADATA',response);
         return self._scrapeMetadata(response);
+      })
+      .fail(function () {
+        return {};
       });
   }
 

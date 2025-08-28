@@ -13,12 +13,18 @@ class RadioFranceLiveScraper extends BaseScraper {
     }
     const [artist] = jp.query(metadata, '$.now.firstLine.title');
     let [cover] = jp.query(metadata, '$.now.visuals.player.webpSrc');
-    const [startTime] = jp.query(metadata, '$.now.media.startTime');
-    const [endTime] = jp.query(metadata, '$.now.media.endTime');
-    // let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
-    // if (delayToRefresh) {
-    //   delayToRefresh = delayToRefresh / 1000 + 5;
-    // }
+    let [startTime] = jp.query(metadata, '$.now.media.startTime');
+    let [endTime] = jp.query(metadata, '$.now.media.endTime');
+    let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
+    if (startTime) {
+      startTime = startTime + 7;
+    }
+    if (endTime) {
+      endTime = endTime + 7;
+    }
+    if (delayToRefresh) {
+      delayToRefresh = delayToRefresh / 1000;
+    }
     if (cover) {
       cover = cover.replace(/\/200x200_/,'/400x400_');
     }
@@ -29,7 +35,6 @@ class RadioFranceLiveScraper extends BaseScraper {
       cover,
       startTime,
       endTime,
-      // delayToRefresh,
     };
   }
 

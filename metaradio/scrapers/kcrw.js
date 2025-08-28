@@ -19,7 +19,7 @@ class KcrwScraper extends BaseScraper {
     dayjs.extend(timezone);
     const startTime = dayjs(diffusionDate).unix();
 
-    if (title.trim().toLowerCase() === '[break]') {
+    if (title && title.trim().toLowerCase() === '[break]') {
       return {};
     }
 

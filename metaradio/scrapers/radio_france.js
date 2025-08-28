@@ -15,17 +15,23 @@ class RadioFranceScraper extends BaseScraper {
     let [album] = jp.query(metadata, '$.now.song.release.title');
     const [year] = jp.query(metadata, '$.now.song.year');
     const [cover] = jp.query(metadata, '$.now.visuals.card.webpSrc');
-    const [startTime] = jp.query(metadata, '$.now.startTime');
-    const [endTime] = jp.query(metadata, '$.now.endTime');
+    let [startTime] = jp.query(metadata, '$.now.startTime');
+    let [endTime] = jp.query(metadata, '$.now.endTime');
     let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
     // if (cover) {
     //   cover = cover.replace(/\/200x200_/,'/400x400_');
     // }
+    if (startTime) {
+      startTime = startTime + 7;
+    }
+    if (endTime) {
+      endTime = endTime + 7;
+    }
     if (year) {
       album = album + ' (' + year + ')';
     }
     // if (delayToRefresh) {
-    //   delayToRefresh = delayToRefresh / 1000 + 5;
+    //   delayToRefresh = delayToRefresh / 1000;
     // }
 
     return {

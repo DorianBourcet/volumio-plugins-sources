@@ -481,7 +481,7 @@ ControllerMetaradio.prototype.hydrateMetadata = function (scraped) {
 		if (metadata.endTime > now) {
 			metadata.delayToRefresh = Math.max(metadata.endTime - now + extraDelay,20);
 		} else {
-			metadata.delayToRefresh = 60;
+			metadata.delayToRefresh = 45;
 		}
 	}
 
@@ -552,11 +552,6 @@ ControllerMetaradio.prototype.getMetadata = function () {
 				defer.resolve(result);
 			});
 	} else {
-		// var now = Math.floor(Date.now() / 1000);
-		// if (cachedMetadata.endTime && cachedMetadata.endTime < now) {
-		// 	console.log('EXPIRED, GETTING CURRENT STATION INFO', cachedMetadata.endTime);
-		// 	defer.resolve(self.getCurrentStationMetadata());
-		// }
 		defer.resolve(cachedMetadata);
 	}
 
@@ -649,6 +644,10 @@ ControllerMetaradio.prototype.setMetadata = function () {
 	var self = this;
 	return self.getMetadata()
 		.then(function (result) {
+			var now = Math.floor(Date.now() / 1000);
+			if (result.endTime && now >= result.endTime) {
+				result = self.getCurrentStationMetadata();
+			}
 			self.setPlayingTrackInfo(
 				result.title,
 				result.cover,
