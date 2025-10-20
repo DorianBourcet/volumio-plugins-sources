@@ -10,11 +10,11 @@ class RadioNovaScraper extends BaseScraper {
 
   _scrapeMetadata(response) {
     const metadata = JSON.parse(response);
-    const [title] = jp.query(metadata, '$.currentTrack.title');
-    const [artist] = jp.query(metadata, '$.currentTrack.artist');
-    const [cover] = jp.query(metadata, '$.currentTrack.image');
-    const [diffusionDate] = jp.query(metadata, '$.currentTrack.diffusion_date');
-    const [rawDuration] = jp.query(metadata, '$.currentTrack.duration');
+    const [title] = jp.query(metadata, '$[0].currentTrack.title');
+    const [artist] = jp.query(metadata, '$[0].currentTrack.artist');
+    const [cover] = jp.query(metadata, '$[0].currentTrack.image');
+    const [diffusionDate] = jp.query(metadata, '$[0].currentTrack.diffusion_date');
+    const [rawDuration] = jp.query(metadata, '$[0].currentTrack.duration');
     dayjs.extend(utc);
     dayjs.extend(timezone);
     const startTime = dayjs.tz(diffusionDate, 'Europe/Paris').unix();

@@ -13,6 +13,14 @@
     }
   },
   "stations": {
+    "bbc": [
+      {
+        "title": "Radio 6 Music",
+        "uri": "webbbc/000",
+        "url": "http://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio%3d96000.norewind.m3u8",
+        "logo": "bbc_radio_6_music.svg"
+      }
+    ],
     "fip": [
       {
         "title": "FIP",
@@ -261,7 +269,7 @@
       {
         "title": "ICI Musique",
         "uri": "webradiocanada/001",
-        "url": "https://rcavliveaudio.akamaized.net/hls/live/2006650/M-7QQUE0_QUE/master.m3u8",
+        "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/CBVXFM_SRC.mp3",
         "logo": "rc_ici_musique.jpg",
         "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/83/classique/111",
         "scraper": "r_c_ici_musique"
@@ -269,7 +277,7 @@
       {
         "title": "ICI Première",
         "uri": "webradiocanada/002",
-        "url": "https://rcavliveaudio.akamaized.net/hls/live/2006953/P-2QQUE0_QUE/master.m3u8",
+        "url": "https://17643.live.streamtheworld.com/CBVFM_SRC.mp3",
         "logo": "rc_ici_premiere.jpg",
         "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/83/classique/111",
         "scraper": "r_c_ici_premiere"
@@ -301,7 +309,7 @@
         "uri": "webradionova/000",
         "url": "http://radionova.ice.infomaniak.ch/radionova-256.aac",
         "logo": "radio_nova.jpg",
-        "api": "https://www.nova.fr/wp-json/radios/radio-nova",
+        "api": "https://www.nova.fr/radios-data/www.nova.fr/all.json",
         "scraper": "radio_nova"
       },
       {
@@ -343,6 +351,14 @@
         "logo": "nova_soul.webp",
         "api": "https://www.nova.fr/wp-json/radios/nova-soul",
         "scraper": "radio_nova"
+      }
+    ],
+    "rts": [
+      {
+        "title": "Couleur 3",
+        "uri": "webrts/000",
+        "url": "https://stxt-audiostreaming.akamaized.net/hls/live/2117380/couleur3/master.m3u8",
+        "logo": "rts_couleur3.png"
       }
     ],
     "tsfjazz": [
