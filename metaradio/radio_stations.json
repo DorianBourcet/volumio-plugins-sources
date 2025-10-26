@@ -352,8 +352,8 @@
         "url": "http://nova-nouvo.ice.infomaniak.ch/nova-nouvo-256.aac",
         "logo": "nouvo_nova.webp",
         "method": "GET",
-        "api": "https://www.nova.fr/wp-json/radios/nouvo-nova",
-        "scraper": "radio_nova"
+        "api": "https://www.nova.fr/radios-data/www.nova.fr/all.json",
+        "scraper": "radio_nova_nouvo"
       },
       {
         "title": "Nova Classics",
@@ -361,17 +361,17 @@
         "url": "http://nova-vnt.ice.infomaniak.ch/nova-vnt-256.aac",
         "logo": "nova_classics.jpg",
         "method": "GET",
-        "api": "https://www.nova.fr/wp-json/radios/nova-classics",
-        "scraper": "radio_nova"
+        "api": "https://www.nova.fr/radios-data/www.nova.fr/all.json",
+        "scraper": "radio_nova_classics"
       },
       {
-        "title": "Nova la Nuit",
+        "title": "Nova la nuit",
         "uri": "webradionova/003",
         "url": "http://nova-ln.ice.infomaniak.ch/nova-ln-256.aac",
         "logo": "nova_la_nuit.jpg",
         "method": "GET",
-        "api": "https://www.nova.fr/wp-json/radios/nova-la-nuit",
-        "scraper": "radio_nova"
+        "api": "https://www.nova.fr/radios-data/www.nova.fr/all.json",
+        "scraper": "radio_nova_la_nuit"
       },
       {
         "title": "Nova Reggae",
@@ -379,8 +379,8 @@
         "url": "http://nova-reggae.ice.infomaniak.ch/nova-reggae-256.aac",
         "logo": "nova_reggae.webp",
         "method": "GET",
-        "api": "https://www.nova.fr/wp-json/radios/nova-reggae",
-        "scraper": "radio_nova"
+        "api": "https://www.nova.fr/radios-data/www.nova.fr/all.json",
+        "scraper": "radio_nova_reggae"
       },
       {
         "title": "Nova Soul",
@@ -388,8 +388,8 @@
         "url": "http://nova-reggae.ice.infomaniak.ch/nova-soul-256.aac",
         "logo": "nova_soul.webp",
         "method": "GET",
-        "api": "https://www.nova.fr/wp-json/radios/nova-soul",
-        "scraper": "radio_nova"
+        "api": "https://www.nova.fr/radios-data/www.nova.fr/all.json",
+        "scraper": "radio_nova_soul"
       }
     ],
     "rts": [
