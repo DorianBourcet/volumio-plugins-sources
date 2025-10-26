@@ -204,7 +204,6 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 				self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
 				self.timer = new Timer(self.setMetadata.bind(self), function(result) {return result*1000;}, 0);
 				self.timer.start();
-				//return self.setMetadata(track.api);
 			} else {
 				self.setPlayingTrackInfo(
 					self.currentStation.name,
@@ -359,6 +358,7 @@ ControllerMetaradio.prototype.explodeUri = function(uri) {
 		uri: station.url,
 		name: station.title,
 		//slogan: 'slogan' in station ? station.slogan : station.title,
+		method: station.method,
 		api: station.api,
 		scraper: station.scraper
 	});
@@ -536,7 +536,7 @@ ControllerMetaradio.prototype.getMetadata = function () {
 	let key = self.currentStation.uri.replace(/[^a-zA-Z0-9]/g, '');
 	let cachedMetadata = self.cache.get(key);
 	if (cachedMetadata === undefined) {
-		self.scraper.getMetadata(self.currentStation.api)
+		self.scraper.getMetadata(self.currentStation.api, self.currentStation.method)
 			.then(function (result) {
 				self.scrapingFailureCount = 0;
 				console.log('SCRAPED METADATA',result);
