@@ -285,6 +285,35 @@
         "scraper": "kcrw"
       }
     ],
+    "lautfm": [
+      {
+        "title": "Chilled Beats",
+        "uri": "weblautfm/000",
+        "url": "https://stream.laut.fm/chilled-beats",
+        "logo": "chilled_beats.png",
+        "method": "GET",
+        "api": "https://api.laut.fm/station/chilled-beats/current_song",
+        "scraper": "laut_fm"
+      },
+      {
+        "title": "Lofi Radio",
+        "uri": "weblautfm/001",
+        "url": "https://stream.laut.fm/lofi-radio",
+        "logo": "lofi_radio.png",
+        "method": "GET",
+        "api": "https://api.laut.fm/station/lofi-radio/current_song",
+        "scraper": "laut_fm"
+      },
+      {
+        "title": "Loungetunes",
+        "uri": "weblautfm/002",
+        "url": "https://stream.laut.fm/loungetunes",
+        "logo": "lounge_tunes.jpg",
+        "method": "GET",
+        "api": "https://api.laut.fm/station/loungetunes/current_song",
+        "scraper": "laut_fm"
+      }
+    ],
     "radiocanada": [
       {
         "title": "ICI Musique Classique",
