@@ -283,6 +283,17 @@
         "scraper": "grrif"
       }
     ],
+    "jazzradio": [
+      {
+        "title": "Jazz Radio",
+        "uri": "webjazzradio/000",
+        "url": "https://jazzradio.ice.infomaniak.ch/jazzradio-high.mp3",
+        "logo": "jazz_radio.webp",
+        "method": "POST",
+        "api": "https://www.jazzradio.fr/lite/update_onair",
+        "scraper": "jazz_radio"
+      }
+    ],
     "kcrw": [
       {
         "title": "KCRW Eclectic24",
