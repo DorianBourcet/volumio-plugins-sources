@@ -6,9 +6,11 @@ function Timer(taskFn, delayFn, initialDelay) {
   self.timeoutObj = null;
   self.initialDelay = initialDelay;
   self.latestDelay = initialDelay;
+  self.stopped = true;
 
   self.start = function() {
     var self = this;
+    self.stopped = false;
     self.timeoutObj = setTimeout(
       self.executeTask,
       self.latestDelay
@@ -17,8 +19,10 @@ function Timer(taskFn, delayFn, initialDelay) {
 
   self.executeTask = function() {
     var self = this;
+    if (self.stopped) { return; }
     console.log('TIMER_TICK');
     self.taskFn().then(function(result) {
+      if (self.stopped) { return; }  // neutralise un scraping en vol arrivé après stop()
       self.latestDelay = delayFn(result);
       self.timeoutObj = setTimeout(
         self.executeTask,
@@ -30,6 +34,7 @@ function Timer(taskFn, delayFn, initialDelay) {
 
   self.stop = function() {
     var self = this;
+    self.stopped = true;
     clearTimeout(self.timeoutObj);
     self.latestDelay = initialDelay;
   }
