@@ -419,19 +419,22 @@ ControllerMetaradio.prototype.getRadioContent = function() {
   var response;
 
   response = self.rootNavigation;
-  response.navigation.lists[0].items = [];
+	var items = [];
 	for (var station in self.radioStations) {
 		for (var channel of self.radioStations[station]) {
-				var radio = {
+				items.push({
 					service: self.serviceName,
 					type: 'song',
 					title: channel.title,
 					uri: channel.uri,
 					albumart: '/albumart?sourceicon=music_service/'+self.serviceName+'/logos/'+channel.logo
-				};
-				response.navigation.lists[0].items.push(radio);
+				});
 		}
 	}
+	items.sort(function (a, b) {
+		return a.title.localeCompare(b.title, 'fr', { sensitivity: 'base' });
+	});
+	response.navigation.lists[0].items = items;
 
   return libQ.resolve(response);
 };

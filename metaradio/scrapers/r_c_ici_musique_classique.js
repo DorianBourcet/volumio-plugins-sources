@@ -15,6 +15,7 @@ class RCIciMusiqueClassiqueScraper extends BaseScraper {
     //let program = self.findBroadcastingProgram(found.trafficBroadcasts);
     dayjs.extend(utc);
     let now = dayjs().unix();
+    if (!found.trafficBroadcasts) {return {};}
     let broadcast = found.trafficBroadcasts.find(function(item) {
       return dayjs(item.startsAt).unix() <= now && dayjs(item.endsAt).unix() > now;
     });
@@ -27,7 +28,8 @@ class RCIciMusiqueClassiqueScraper extends BaseScraper {
       endTime: dayjs(broadcast.endsAt).unix(),
     };
     //let musicTitle = self.findBroadcastingTitle(found.musicTracks);
-    let broadcastTwo = found.musicTracks.find(function(item) {
+    let musicTracks = found.musicTracks || [];
+    let broadcastTwo = musicTracks.find(function(item) {
       return dayjs(item.broadcastedAt).unix() <= now && dayjs(item.broadcastedLastTimeAt).unix() > now;
     });
     let musicTitle = {};
@@ -40,14 +42,15 @@ class RCIciMusiqueClassiqueScraper extends BaseScraper {
       };
     }
     //let nextTitleStartTime = self.findNextBroadcastingStartTime(found.musicTracks);
-    let broadcastThree = found.musicTracks.find(function(item) {
+    let broadcastThree = musicTracks.find(function(item) {
       return dayjs(item.broadcastedAt).unix() >= now;
     });
     let nextTitleStartTime = null;
     if (broadcastThree) {
       nextTitleStartTime = dayjs(broadcastThree.broadcastedAt).unix();
     }
-    let scraped = {...program, ...musicTitle, ...{endTime : Math.min(program.endTime,nextTitleStartTime)}};
+    let endTime = nextTitleStartTime ? Math.min(program.endTime, nextTitleStartTime) : program.endTime;
+    let scraped = {...program, ...musicTitle, endTime};
     return scraped;
   }
 

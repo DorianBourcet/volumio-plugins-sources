@@ -21,6 +21,17 @@
         "logo": "bbc_radio_6_music.svg"
       }
     ],
+    "rtbf": [
+      {
+        "title": "Classic 21",
+        "uri": "webrtbf/000",
+        "url": "https://radio.rtbf.be/c21/aac-128/rp-web?rp_source=1",
+        "logo": "rtbf_classic_21.png",
+        "method": "GET",
+        "api": "https://www.rtbf.be/classic21/retrouver-un-titre",
+        "scraper": "classic21"
+      }
+    ],
     "fip": [
       {
         "title": "FIP",
@@ -294,6 +305,17 @@
         "scraper": "jazz_radio"
       }
     ],
+    "kexp": [
+      {
+        "title": "KEXP",
+        "uri": "webkexp/000",
+        "url": "https://kexp-mp3-128.streamguys1.com/kexp128.mp3",
+        "logo": "kexp.png",
+        "method": "GET",
+        "api": "https://api.kexp.org/v2/plays/?format=json",
+        "scraper": "kexp"
+      }
+    ],
     "kcrw": [
       {
         "title": "KCRW Eclectic24",
@@ -334,6 +356,17 @@
         "scraper": "laut_fm"
       }
     ],
+    "ouifm": [
+      {
+        "title": "Oüi FM",
+        "uri": "webouifm/000",
+        "url": "https://ouifm.ice.infomaniak.ch/ouifm-high.mp3",
+        "logo": "oui_fm.png",
+        "method": "GET",
+        "api": "https://www.ouifm.fr/api/TitleDiffusions?size=1&radioStreamId=2174546520932614531",
+        "scraper": "ouifm"
+      }
+    ],
     "radiocanada": [
       {
         "title": "ICI Musique Classique",
@@ -341,31 +374,42 @@
         "url": "https://rcavliveaudio.akamaized.net/hls/live/2007000/MUSE/master.m3u8",
         "logo": "rc_ici_musique_classique.png",
         "method": "GET",
-        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/83/classique/111",
+        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/84/classique/111",
         "scraper": "r_c_ici_musique_classique"
       },
       {
         "title": "ICI Musique",
         "uri": "webradiocanada/001",
-        "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/CBVXFM_SRC.mp3",
+        "url": "https://rcavliveaudio.akamaized.net/hls/live/2006650/M-7QQUE0_QUE/adaptive_192/chunklist_ao.m3u8",
         "logo": "rc_ici_musique.jpg",
         "method": "GET",
-        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/83/classique/111",
+        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/84/classique/111",
         "scraper": "r_c_ici_musique"
       },
       {
         "title": "ICI Première",
         "uri": "webradiocanada/002",
-        "url": "https://17643.live.streamtheworld.com/CBVFM_SRC.mp3",
+        "url": "https://rcavliveaudio.akamaized.net/hls/live/2006953/P-2QQUE0_QUE/adaptive_192/chunklist_ao.m3u8",
         "logo": "rc_ici_premiere.jpg",
         "method": "GET",
-        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/83/classique/111",
+        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/84/classique/111",
         "scraper": "r_c_ici_premiere"
+      }
+    ],
+    "radioclassiquefr": [
+      {
+        "title": "Radio Classique FR",
+        "uri": "webradioclassiquefr/000",
+        "url": "https://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3",
+        "logo": "radio_classique_fr.webp",
+        "method": "GET",
+        "api": "https://d3gf3bsqck8svl.cloudfront.net/direct-metadata/current.json",
+        "scraper": "radio_classique_fr"
       }
     ],
     "radioclassiqueqc": [
       {
-        "title": "Radio Classique",
+        "title": "Radio Classique QC",
         "uri": "webradioclassiqueqc/000",
         "url": "https://listen.radioking.com/radio/256885/stream/301510",
         "logo": "radio_classique_quebec.jpeg",
@@ -443,7 +487,7 @@
     ],
     "rts": [
       {
-        "title": "RTS Couleur 3",
+        "title": "Couleur 3",
         "uri": "webrts/000",
         "url": "https://stxt-audiostreaming.akamaized.net/hls/live/2117380/couleur3/master.m3u8",
         "logo": "rts_couleur3.png",
