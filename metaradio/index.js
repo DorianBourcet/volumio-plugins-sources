@@ -11,6 +11,10 @@ var Timer = require('./helpers/timer');
 var Cache = require('./helpers/cache');
 var hash = require('object-hash');
 
+const MIN_DELAY_TO_REFRESH = 20;
+const MAX_DELAY_TO_REFRESH = 900;
+const DEFAULT_DELAY_TO_REFRESH = 60;
+
 module.exports = ControllerMetaradio;
 
 function ControllerMetaradio(context) {
@@ -340,10 +344,17 @@ ControllerMetaradio.prototype.explodeUri = function(uri) {
 			}
 		}
 	} else {
-		var parts = uri.split('/');
-		var channel = parseInt(parts[1]);
-		var group = parts[0].substring(3);
-		station = self.radioStations[group][channel];
+		for (const group in self.radioStations) {
+			station = self.radioStations[group].find(item => item.uri === uri);
+			if (station) {
+				break;
+			}
+		}
+	}
+
+	if (!station) {
+		defer.reject(new Error('metaradio: unknown uri ' + uri));
+		return defer.promise;
 	}
 
 	if (self.timer) {
@@ -480,13 +491,14 @@ ControllerMetaradio.prototype.hydrateMetadata = function (scraped) {
 	else if (metadata.cover === undefined || metadata.cover === null || metadata.cover === false) {
 		metadata.cover = self.currentStation.albumart;
 	}
-	if (metadata.delayToRefresh === undefined || metadata.delayToRefresh === null || metadata.delayToRefresh < 20) {
+	if (metadata.delayToRefresh === undefined || metadata.delayToRefresh === null || metadata.delayToRefresh < MIN_DELAY_TO_REFRESH) {
 		if (metadata.endTime > now) {
-			metadata.delayToRefresh = Math.max(metadata.endTime - now + extraDelay,20);
+			metadata.delayToRefresh = Math.max(metadata.endTime - now + extraDelay,MIN_DELAY_TO_REFRESH);
 		} else {
-			metadata.delayToRefresh = 45;
+			metadata.delayToRefresh = DEFAULT_DELAY_TO_REFRESH;
 		}
 	}
+	metadata.delayToRefresh = Math.min(metadata.delayToRefresh, MAX_DELAY_TO_REFRESH);
 
 	return metadata;
 }

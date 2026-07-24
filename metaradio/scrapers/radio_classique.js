@@ -22,12 +22,16 @@ function clean(value) {
   return text || undefined;
 }
 
-class RadioClassiqueFrScraper extends BaseScraper {
+class RadioClassiqueScraper extends BaseScraper {
 
   _scrapeMetadata(response) {
     const data = JSON.parse(response);
     const title = clean(data.titre);
     const artist = clean(data.auteur);
+
+    if (artist === ':-)') {
+      return {};
+    }
 
     if (!title && !artist) {
       return {};
@@ -41,4 +45,4 @@ class RadioClassiqueFrScraper extends BaseScraper {
 
 }
 
-module.exports = RadioClassiqueFrScraper;
+module.exports = RadioClassiqueScraper;

@@ -18,7 +18,10 @@
         "title": "Radio 6 Music",
         "uri": "webbbc/000",
         "url": "http://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio%3d96000.norewind.m3u8",
-        "logo": "bbc_radio_6_music.svg"
+        "logo": "bbc_radio_6_music.svg",
+        "method": "GET",
+        "api": "https://rms.api.bbc.co.uk/v2/services/bbc_6music/segments/latest?experience=domestic&offset=0&limit=4",
+        "scraper": "bbc_6_music"
       }
     ],
     "rtbf": [
@@ -40,7 +43,7 @@
         "logo": "fip.svg",
         "method": "GET",
         "api": "https://api.radiofrance.fr/livemeta/live/7/fip_extended",
-        "scraper": "radio_france_high_def"
+        "scraper": "radio_france_fip"
       },
       {
         "title": "FIP Cultes",
@@ -374,7 +377,7 @@
         "url": "https://rcavliveaudio.akamaized.net/hls/live/2007000/MUSE/master.m3u8",
         "logo": "rc_ici_musique_classique.png",
         "method": "GET",
-        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/84/classique/111",
+        "api": "https://services.radio-canada.ca/bff/audio/graphql?opname=liveSchedules&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%221a64b025c665184903304562b5daead1d9e788686a2a4204076e7c71e85522de%22%7D%7D&variables=%7B%22params%22%3A%7B%22regionId%22%3A9%7D%7D",
         "scraper": "r_c_ici_musique_classique"
       },
       {
@@ -383,7 +386,7 @@
         "url": "https://rcavliveaudio.akamaized.net/hls/live/2006650/M-7QQUE0_QUE/adaptive_192/chunklist_ao.m3u8",
         "logo": "rc_ici_musique.jpg",
         "method": "GET",
-        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/84/classique/111",
+        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/5/classique/111",
         "scraper": "r_c_ici_musique"
       },
       {
@@ -396,15 +399,15 @@
         "scraper": "r_c_ici_premiere"
       }
     ],
-    "radioclassiquefr": [
+    "radioclassique": [
       {
-        "title": "Radio Classique FR",
-        "uri": "webradioclassiquefr/000",
+        "title": "Radio Classique",
+        "uri": "webradioclassique/000",
         "url": "https://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3",
-        "logo": "radio_classique_fr.webp",
+        "logo": "radio_classique.webp",
         "method": "GET",
         "api": "https://d3gf3bsqck8svl.cloudfront.net/direct-metadata/current.json",
-        "scraper": "radio_classique_fr"
+        "scraper": "radio_classique"
       }
     ],
     "radioclassiqueqc": [

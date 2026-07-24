@@ -5,11 +5,6 @@ const BaseScraper = require('./base');
 const DIRECT_LABEL = 'Le direct';
 const SEPARATOR = ' • ';
 
-// Radio France exposes covers as an image id resolved through the pikapi CDN.
-function coverUrlFor(id) {
-  return id ? 'https://www.radiofrance.fr/pikapi/images/' + id + '/800x800' : undefined;
-}
-
 // Musical webradios pack "Artist • Title" into a single line.
 function splitArtistTitle(line) {
   const idx = line.indexOf(SEPARATOR);
@@ -27,8 +22,14 @@ class RadioFranceHighDefScraper extends BaseScraper {
   // The livemeta response shape depends on the "visual" (last URL segment), which
   // base.getMetadata does not forward to _scrapeMetadata, so capture it here.
   getMetadata(url, method) {
-    this._visual = String(url).split('?')[0].split('/').pop();
+    this._url = String(url);
+    this._visual = this._url.split('?')[0].split('/').pop();
     return super.getMetadata(url, method);
+  }
+
+  // Radio France exposes covers as an image id resolved through the pikapi CDN.
+  _coverUrlFor(id) {
+    return id ? 'https://www.radiofrance.fr/pikapi/images/' + id + '/800x800' : undefined;
   }
 
   _scrapeMetadata(response) {
@@ -64,17 +65,19 @@ class RadioFranceHighDefScraper extends BaseScraper {
       };
     }
 
-    const startTime = now.startTime ? now.startTime + 35 : undefined;
-    const endTime = now.endTime ? now.endTime + 35 : undefined;
+    const startTime = now.startTime ? now.startTime + 23 : undefined;
+    const endTime = now.endTime ? now.endTime + 23 : undefined;
 
     return {
       ...core,
-      cover: coverUrlFor(now.cover),
+      cover: this._coverUrlFor(now.cover),
       startTime,
       endTime,
     };
   }
 
 }
+
+RadioFranceHighDefScraper.DIRECT_LABEL = DIRECT_LABEL;
 
 module.exports = RadioFranceHighDefScraper;

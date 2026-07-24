@@ -8,7 +8,7 @@ class RCIciMusiqueScraper extends BaseScraper {
 
   _scrapeMetadata(response) {
     const metadata = JSON.parse(response);
-    let found = metadata.schedules.find(item => item.broadcastingNetworkId == 4 && item.broadcastingStationId == 84);
+    let found = metadata.schedules.find(item => item.broadcastingNetworkId == 4 && item.broadcastingStationId == 5);
     if (!found) {return {};}
     dayjs.extend(utc);
     let now = dayjs().unix();

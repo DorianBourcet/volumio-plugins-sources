@@ -19,7 +19,9 @@ class BaseScraper {
 
   _fetchMetadata(url, method) {
     var defer = libQ.defer();
-    http.request(url, {method}, (resp) => {
+    // Some APIs (e.g. BBC/CloudFront) reject requests without a User-Agent with a 403.
+    var headers = {'User-Agent': 'Mozilla/5.0'};
+    http.request(url, {method, headers}, (resp) => {
       if (resp.statusCode < 200 || resp.statusCode > 299) {
         console.log('FAILED TO QUERY API',url);
         console.log('STATUS CODE',resp.statusCode);
