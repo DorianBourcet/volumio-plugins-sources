@@ -499,6 +499,17 @@
         "scraper": "rts_couleur3"
       }
     ],
+    "shonanbeachfm": [
+      {
+        "title": "Shonan Beach FM",
+        "uri": "webshonanbeachfm/000",
+        "url": "https://shonanbeachfm.out.airtime.pro:8000/shonanbeachfm_c",
+        "logo": "shonan_beach_fm.jpg",
+        "method": "GET",
+        "api": "https://www.beachfm.co.jp/wp-content/uploads/now_play.json",
+        "scraper": "shonan_beach_fm"
+      }
+    ],
     "tsfjazz": [
       {
         "title": "TSF Jazz",
