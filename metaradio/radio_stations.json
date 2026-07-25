@@ -18,116 +18,139 @@
         "title": "Radio 6 Music",
         "uri": "webbbc/000",
         "url": "http://as-hls-ww-live.akamaized.net/pool_81827798/live/ww/bbc_6music/bbc_6music.isml/bbc_6music-audio%3d96000.norewind.m3u8",
-        "logo": "bbc_radio_6_music.svg"
+        "logo": "bbc_radio_6_music.svg",
+        "method": "GET",
+        "api": "https://rms.api.bbc.co.uk/v2/services/bbc_6music/segments/latest?experience=domestic&offset=0&limit=4",
+        "scraper": "bbc_6_music"
+      }
+    ],
+    "rtbf": [
+      {
+        "title": "Classic 21",
+        "uri": "webrtbf/000",
+        "url": "https://radio.rtbf.be/c21/aac-128/rp-web?rp_source=1",
+        "logo": "rtbf_classic_21.png",
+        "method": "GET",
+        "api": "https://www.rtbf.be/classic21/retrouver-un-titre",
+        "scraper": "classic21"
       }
     ],
     "fip": [
       {
         "title": "FIP",
         "uri": "webfip/000",
-        "url": "http://icecast.radiofrance.fr/fip-hifi.aac",
+        "url": "https://stream.radiofrance.fr/fip/fip_hifi.m3u8?id=radiofrance",
         "logo": "fip.svg",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/fip/api/live",
+        "api": "https://api.radiofrance.fr/livemeta/live/7/fip_extended",
+        "scraper": "radio_france_fip"
+      },
+      {
+        "title": "FIP Cultes",
+        "uri": "webfip/001",
+        "url": "https://stream.radiofrance.fr/fipcultes/fipcultes_hifi.m3u8?id=radiofrance",
+        "logo": "fip_cultes.jpg",
+        "method": "GET",
+        "api": "https://api.radiofrance.fr/livemeta/live/709/fip_extended",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Electro",
-        "uri": "webfip/001",
-        "url": "http://icecast.radiofrance.fr/fipelectro-hifi.aac",
+        "uri": "webfip/002",
+        "url": "https://stream.radiofrance.fr/fipelectro/fipelectro_hifi.m3u8?id=radiofrance",
         "logo": "fip_electro.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/fip/api/live?webradio=fip_electro",
+        "api": "https://api.radiofrance.fr/livemeta/live/74/fip_extended",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Groove",
-        "uri": "webfip/002",
-        "url": "http://icecast.radiofrance.fr/fipgroove-hifi.aac",
+        "uri": "webfip/003",
+        "url": "https://stream.radiofrance.fr/fipgroove/fipgroove_hifi.m3u8?id=radiofrance",
         "logo": "fip_groove.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/fip/api/live?webradio=fip_groove",
+        "api": "https://api.radiofrance.fr/livemeta/live/66/fip_extended",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Hip-Hop",
-        "uri": "webfip/003",
-        "url": "http://icecast.radiofrance.fr/fiphiphop-hifi.aac",
+        "uri": "webfip/004",
+        "url": "https://stream.radiofrance.fr/fiphiphop/fiphiphop_hifi.m3u8?id=radiofrance",
         "logo": "fip_hiphop.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/fip/api/live?webradio=fip_hiphop",
+        "api": "https://api.radiofrance.fr/livemeta/live/95/fip_extended",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Jazz",
-        "uri": "webfip/004",
-        "url": "http://icecast.radiofrance.fr/fipjazz-hifi.aac",
+        "uri": "webfip/005",
+        "url": "https://stream.radiofrance.fr/fipjazz/fipjazz_hifi.m3u8?id=radiofrance",
         "logo": "fip_jazz.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/fip/api/live?webradio=fip_jazz",
+        "api": "https://api.radiofrance.fr/livemeta/live/65/fip_extended",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Metal",
-        "uri": "webfip/005",
-        "url": "http://icecast.radiofrance.fr/fipmetal-hifi.aac",
+        "uri": "webfip/006",
+        "url": "https://stream.radiofrance.fr/fipmetal/fipmetal_hifi.m3u8?id=radiofrance",
         "logo": "fip_metal.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/fip/api/live?webradio=fip_metal",
+        "api": "https://api.radiofrance.fr/livemeta/live/77/fip_extended",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Monde",
-        "uri": "webfip/006",
-        "url": "http://icecast.radiofrance.fr/fipworld-hifi.aac",
+        "uri": "webfip/007",
+        "url": "https://stream.radiofrance.fr/fipworld/fipworld_hifi.m3u8?id=radiofrance",
         "logo": "fip_monde.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/fip/api/live?webradio=fip_world",
+        "api": "https://api.radiofrance.fr/livemeta/live/69/fip_extended",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Nouveautés",
-        "uri": "webfip/007",
-        "url": "http://icecast.radiofrance.fr/fipnouveautes-hifi.aac",
+        "uri": "webfip/008",
+        "url": "https://stream.radiofrance.fr/fipnouveautes/fipnouveautes_hifi.m3u8?id=radiofrance",
         "logo": "fip_nouveautes.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/fip/api/live?webradio=fip_nouveautes",
+        "api": "https://api.radiofrance.fr/livemeta/live/70/fip_extended",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Pop",
-        "uri": "webfip/008",
-        "url": "http://icecast.radiofrance.fr/fippop-hifi.aac",
+        "uri": "webfip/009",
+        "url": "https://stream.radiofrance.fr/fippop/fippop_hifi.m3u8?id=radiofrance",
         "logo": "fip_pop.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/fip/api/live?webradio=fip_pop",
+        "api": "https://api.radiofrance.fr/livemeta/live/78/fip_extended",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Reggae",
-        "uri": "webfip/009",
-        "url": "http://icecast.radiofrance.fr/fipreggae-hifi.aac",
+        "uri": "webfip/010",
+        "url": "https://stream.radiofrance.fr/fipreggae/fipreggae_hifi.m3u8?id=radiofrance",
         "logo": "fip_reggae.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/fip/api/live?webradio=fip_reggae",
+        "api": "https://api.radiofrance.fr/livemeta/live/71/fip_extended",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "FIP Rock",
-        "uri": "webfip/010",
-        "url": "http://icecast.radiofrance.fr/fiprock-hifi.aac",
+        "uri": "webfip/011",
+        "url": "https://stream.radiofrance.fr/fiprock/fiprock_hifi.m3u8?id=radiofrance",
         "logo": "fip_rock.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/fip/api/live?webradio=fip_rock",
+        "api": "https://api.radiofrance.fr/livemeta/live/64/fip_extended",
         "scraper": "radio_france_high_def"
       },
       {
-        "title": "FIP Sacré Français",
-        "uri": "webfip/011",
-        "url": "http://icecast.radiofrance.fr/fipsacrefrancais-hifi.aac",
+        "title": "FIP Sacré français",
+        "uri": "webfip/012",
+        "url": "https://stream.radiofrance.fr/fipsacrefrancais/fipsacrefrancais_hifi.m3u8?id=radiofrance",
         "logo": "fip_sacre_francais.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/fip/api/live?webradio=fip_sacre_francais",
+        "api": "https://api.radiofrance.fr/livemeta/live/96/fip_extended",
         "scraper": "radio_france_high_def"
       }
     ],
@@ -135,10 +158,10 @@
       {
         "title": "France Culture",
         "uri": "webfranceculture/000",
-        "url": "http://icecast.radiofrance.fr/franceculture-hifi.aac",
+        "url": "https://stream.radiofrance.fr/franceculture/franceculture_hifi.m3u8?id=radiofrance",
         "logo": "france_culture.svg",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/franceculture/api/live",
+        "api": "https://api.radiofrance.fr/livemeta/live/5/transistor_culture_player",
         "scraper": "radio_france_high_def"
       }
     ],
@@ -146,19 +169,10 @@
       {
         "title": "France Inter",
         "uri": "webfranceinter/000",
-        "url": "http://icecast.radiofrance.fr/franceinter-hifi.aac",
+        "url": "https://stream.radiofrance.fr/franceinter/franceinter_hifi.m3u8?id=radiofrance",
         "logo": "france_inter.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/franceinter/api/live",
-        "scraper": "radio_france_high_def"
-      },
-      {
-        "title": "La musique d'Inter",
-        "uri": "webfranceinter/001",
-        "url": "http://icecast.radiofrance.fr/franceinterlamusiqueinter-hifi.aac",
-        "logo": "musique_inter.jpg",
-        "method": "GET",
-        "api": "https://www.radiofrance.fr/franceinter/api/live?webradio=franceinter_la_musique_inter",
+        "api": "https://api.radiofrance.fr/livemeta/live/1/transistor_inter_player",
         "scraper": "radio_france_high_def"
       }
     ],
@@ -166,100 +180,109 @@
       {
         "title": "France Musique",
         "uri": "webfrancemusique/000",
-        "url": "http://icecast.radiofrance.fr/francemusique-hifi.aac",
+        "url": "https://stream.radiofrance.fr/francemusique/francemusique_hifi.m3u8?id=radiofrance",
         "logo": "france_musique.svg",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/francemusique/api/live",
+        "api": "https://api.radiofrance.fr/livemeta/live/4/musique_player",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "France Musique Baroque",
         "uri": "webfrancemusique/001",
-        "url": "https://icecast.radiofrance.fr/francemusiquebaroque-hifi.aac",
+        "url": "https://stream.radiofrance.fr/francemusiquebaroque/francemusiquebaroque_hifi.m3u8?id=radiofrance",
         "logo": "france_musique_la_baroque.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/francemusique/api/live?webradio=francemusique_baroque",
+        "api": "https://api.radiofrance.fr/livemeta/live/408/transistor_musical_player",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "France Musique Classique Easy",
         "uri": "webfrancemusique/002",
-        "url": "http://icecast.radiofrance.fr/francemusiqueeasyclassique-hifi.aac",
+        "url": "https://stream.radiofrance.fr/francemusiqueeasyclassique/francemusiqueeasyclassique_hifi.m3u8?id=radiofrance",
         "logo": "france_musique_classique_easy.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/francemusique/api/live?webradio=francemusique_classique_easy",
+        "api": "https://api.radiofrance.fr/livemeta/live/401/transistor_musical_player",
+        "scraper": "radio_france_high_def"
+      },
+      {
+        "title": "France Musique Classique Love",
+        "uri": "webfrancemusique/003",
+        "url": "https://stream.radiofrance.fr/francemusiqueclassiquelove/francemusiqueclassiquelove_hifi.m3u8?id=radiofrance",
+        "logo": "france_musique_classique_love.png",
+        "method": "GET",
+        "api": "https://api.radiofrance.fr/livemeta/live/411/transistor_musical_player",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "France Musique Classique Plus",
-        "uri": "webfrancemusique/003",
-        "url": "https://icecast.radiofrance.fr/francemusiqueclassiqueplus-hifi.aac",
+        "uri": "webfrancemusique/004",
+        "url": "https://stream.radiofrance.fr/francemusiqueclassiqueplus/francemusiqueclassiqueplus_hifi.m3u8?id=radiofrance",
         "logo": "france_musique_classique_plus.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/francemusique/api/live?webradio=francemusique_classique_plus",
+        "api": "https://api.radiofrance.fr/livemeta/live/402/transistor_musical_player",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "France Musique Concert",
-        "uri": "webfrancemusique/004",
-        "url": "https://icecast.radiofrance.fr/francemusiqueconcertsradiofrance-hifi.aac",
+        "uri": "webfrancemusique/005",
+        "url": "https://stream.radiofrance.fr/francemusiqueconcertsradiofrance/francemusiqueconcertsradiofrance_hifi.m3u8?id=radiofrance",
         "logo": "france_musique_concerts_radio_france.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/francemusique/api/live?webradio=francemusique_concert_rf",
+        "api": "https://api.radiofrance.fr/livemeta/live/403/transistor_musical_player",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "France Musique Contemporaine",
-        "uri": "webfrancemusique/005",
-        "url": "https://icecast.radiofrance.fr/francemusiquelacontemporaine-hifi.aac",
+        "uri": "webfrancemusique/006",
+        "url": "https://stream.radiofrance.fr/francemusiquelacontemporaine/francemusiquelacontemporaine_hifi.m3u8?id=radiofrance",
         "logo": "france_musique_la_contemporaine.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/francemusique/api/live?webradio=francemusique_la_contemporaine",
+        "api": "https://api.radiofrance.fr/livemeta/live/406/transistor_musical_player",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "France Musique Films",
-        "uri": "webfrancemusique/006",
-        "url": "https://icecast.radiofrance.fr/francemusiquelabo-hifi.aac",
+        "uri": "webfrancemusique/007",
+        "url": "https://stream.radiofrance.fr/francemusiquelabo/francemusiquelabo_hifi.m3u8?id=radiofrance",
         "logo": "france_musique_la_bo_films.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/francemusique/api/live?webradio=francemusique_evenementielle",
+        "api": "https://api.radiofrance.fr/livemeta/live/407/transistor_musical_player",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "France Musique Jazz",
-        "uri": "webfrancemusique/007",
-        "url": "https://icecast.radiofrance.fr/francemusiquelajazz-hifi.aac",
+        "uri": "webfrancemusique/008",
+        "url": "https://stream.radiofrance.fr/francemusiquelajazz/francemusiquelajazz_hifi.m3u8?id=radiofrance",
         "logo": "france_musique_la_jazz.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/francemusique/api/live?webradio=francemusique_la_jazz",
+        "api": "https://api.radiofrance.fr/livemeta/live/405/transistor_musical_player",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "France Musique Ocora",
-        "uri": "webfrancemusique/008",
-        "url": "https://icecast.radiofrance.fr/francemusiqueocoramonde-hifi.aac",
+        "uri": "webfrancemusique/009",
+        "url": "https://stream.radiofrance.fr/francemusiqueocoramonde/francemusiqueocoramonde_hifi.m3u8?id=radiofrance",
         "logo": "france_musique_ocora_monde.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/francemusique/api/live?webradio=francemusique_ocora_monde",
+        "api": "https://api.radiofrance.fr/livemeta/live/404/transistor_musical_player",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "France Musique Opéra",
-        "uri": "webfrancemusique/009",
-        "url": "https://icecast.radiofrance.fr/francemusiqueopera-hifi.aac",
+        "uri": "webfrancemusique/010",
+        "url": "https://stream.radiofrance.fr/francemusiqueopera/francemusiqueopera_hifi.m3u8?id=radiofrance",
         "logo": "france_musique_opera.webp",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/francemusique/api/live?webradio=francemusique_opera",
+        "api": "https://api.radiofrance.fr/livemeta/live/409/transistor_musical_player",
         "scraper": "radio_france_high_def"
       },
       {
         "title": "France Musique Piano Zen",
-        "uri": "webfrancemusique/010",
-        "url": "https://icecast.radiofrance.fr/francemusiquepianozen-hifi.aac",
+        "uri": "webfrancemusique/011",
+        "url": "https://stream.radiofrance.fr/francemusiquepianozen/francemusiquepianozen_hifi.m3u8?id=radiofrance",
         "logo": "france_musique_piano_zen.jpg",
         "method": "GET",
-        "api": "https://www.radiofrance.fr/francemusique/api/live?webradio=francemusique_piano_zen",
+        "api": "https://api.radiofrance.fr/livemeta/live/410/transistor_musical_player",
         "scraper": "radio_france_high_def"
       }
     ],
@@ -274,9 +297,31 @@
         "scraper": "grrif"
       }
     ],
+    "jazzradio": [
+      {
+        "title": "Jazz Radio",
+        "uri": "webjazzradio/000",
+        "url": "https://jazzradio.ice.infomaniak.ch/jazzradio-high.mp3",
+        "logo": "jazz_radio.webp",
+        "method": "POST",
+        "api": "https://www.jazzradio.fr/lite/update_onair",
+        "scraper": "jazz_radio"
+      }
+    ],
+    "kexp": [
+      {
+        "title": "KEXP",
+        "uri": "webkexp/000",
+        "url": "https://kexp-mp3-128.streamguys1.com/kexp128.mp3",
+        "logo": "kexp.png",
+        "method": "GET",
+        "api": "https://api.kexp.org/v2/plays/?format=json",
+        "scraper": "kexp"
+      }
+    ],
     "kcrw": [
       {
-        "title": "KCRW Eclectic 24",
+        "title": "KCRW Eclectic24",
         "uri": "webkcrw/000",
         "url": "https://streams.kcrw.com/e24_mp3",
         "logo": "kcrw_eclectic_24.png",
@@ -314,6 +359,17 @@
         "scraper": "laut_fm"
       }
     ],
+    "ouifm": [
+      {
+        "title": "Oüi FM",
+        "uri": "webouifm/000",
+        "url": "https://ouifm.ice.infomaniak.ch/ouifm-high.mp3",
+        "logo": "oui_fm.png",
+        "method": "GET",
+        "api": "https://www.ouifm.fr/api/TitleDiffusions?size=1&radioStreamId=2174546520932614531",
+        "scraper": "ouifm"
+      }
+    ],
     "radiocanada": [
       {
         "title": "ICI Musique Classique",
@@ -321,31 +377,42 @@
         "url": "https://rcavliveaudio.akamaized.net/hls/live/2007000/MUSE/master.m3u8",
         "logo": "rc_ici_musique_classique.png",
         "method": "GET",
-        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/83/classique/111",
+        "api": "https://services.radio-canada.ca/bff/audio/graphql?opname=liveSchedules&extensions=%7B%22persistedQuery%22%3A%7B%22version%22%3A1%2C%22sha256Hash%22%3A%221a64b025c665184903304562b5daead1d9e788686a2a4204076e7c71e85522de%22%7D%7D&variables=%7B%22params%22%3A%7B%22regionId%22%3A9%7D%7D",
         "scraper": "r_c_ici_musique_classique"
       },
       {
         "title": "ICI Musique",
         "uri": "webradiocanada/001",
-        "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/CBVXFM_SRC.mp3",
+        "url": "https://rcavliveaudio.akamaized.net/hls/live/2006650/M-7QQUE0_QUE/adaptive_192/chunklist_ao.m3u8",
         "logo": "rc_ici_musique.jpg",
         "method": "GET",
-        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/83/classique/111",
+        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/5/classique/111",
         "scraper": "r_c_ici_musique"
       },
       {
         "title": "ICI Première",
         "uri": "webradiocanada/002",
-        "url": "https://17643.live.streamtheworld.com/CBVFM_SRC.mp3",
+        "url": "https://rcavliveaudio.akamaized.net/hls/live/2006953/P-2QQUE0_QUE/adaptive_192/chunklist_ao.m3u8",
         "logo": "rc_ici_premiere.jpg",
         "method": "GET",
-        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/83/classique/111",
+        "api": "https://services.radio-canada.ca/neuro/sphere/v1/audio/apps/live-schedules/premiere/41/musique/84/classique/111",
         "scraper": "r_c_ici_premiere"
+      }
+    ],
+    "radioclassique": [
+      {
+        "title": "Radio Classique",
+        "uri": "webradioclassique/000",
+        "url": "https://radioclassique.ice.infomaniak.ch/radioclassique-high.mp3",
+        "logo": "radio_classique.webp",
+        "method": "GET",
+        "api": "https://d3gf3bsqck8svl.cloudfront.net/direct-metadata/current.json",
+        "scraper": "radio_classique"
       }
     ],
     "radioclassiqueqc": [
       {
-        "title": "Radio Classique",
+        "title": "Radio Classique QC",
         "uri": "webradioclassiqueqc/000",
         "url": "https://listen.radioking.com/radio/256885/stream/301510",
         "logo": "radio_classique_quebec.jpeg",
@@ -426,7 +493,10 @@
         "title": "Couleur 3",
         "uri": "webrts/000",
         "url": "https://stxt-audiostreaming.akamaized.net/hls/live/2117380/couleur3/master.m3u8",
-        "logo": "rts_couleur3.png"
+        "logo": "rts_couleur3.png",
+        "method": "GET",
+        "api": "https://www.rts.ch/audio-podcast/livepopup/rts-couleur3/",
+        "scraper": "rts_couleur3"
       }
     ],
     "tsfjazz": [

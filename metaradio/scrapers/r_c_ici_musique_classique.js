@@ -1,92 +1,74 @@
 'use strict';
 
-const jp = require('jsonpath');
 const BaseScraper = require('./base');
 const dayjs = require('dayjs');
 const utc = require('dayjs/plugin/utc');
 
+dayjs.extend(utc);
+
+const NETWORK_ID = 16;
+const STATION_ID = 111;
+
+function buildCover(picture) {
+  if (!picture || !picture.pattern) {
+    return undefined;
+  }
+  return picture.pattern.replace('{width}', '400').replace('{ratio}', '1x1');
+}
+
 class RCIciMusiqueClassiqueScraper extends BaseScraper {
 
   _scrapeMetadata(response) {
-    const metadata = JSON.parse(response);
-    var self = this;
-    let found = metadata.schedules.find(item => item.broadcastingNetworkId == 16 && item.broadcastingStationId == 111);
-    if (!found) {return {};}
-    //let program = self.findBroadcastingProgram(found.trafficBroadcasts);
-    dayjs.extend(utc);
+    const data = JSON.parse(response);
+    const schedules = data && data.data && data.data.liveSchedules
+      ? data.data.liveSchedules.schedules || []
+      : [];
+    const schedule = schedules.find(function (item) {
+      return item.broadcastingStationId === STATION_ID
+        || (item.broadcastingNetwork && item.broadcastingNetwork.id === NETWORK_ID);
+    });
+    if (!schedule) { return {}; }
+
     let now = dayjs().unix();
-    let broadcast = found.trafficBroadcasts.find(function(item) {
-      return dayjs(item.startsAt).unix() <= now && dayjs(item.endsAt).unix() > now;
-    });
-    if (!broadcast) {return {};}
-    let program = {
-      title: broadcast.title,
-      artist: broadcast.credits,
-      cover: broadcast.picture.url.replace('{1}','1x1').replace('{0}','400'),
-      startTime: dayjs(broadcast.startsAt).unix(),
-      endTime: dayjs(broadcast.endsAt).unix(),
+    let inRange = function (start, end) {
+      return dayjs(start).unix() <= now && dayjs(end).unix() > now;
     };
-    //let musicTitle = self.findBroadcastingTitle(found.musicTracks);
-    let broadcastTwo = found.musicTracks.find(function(item) {
-      return dayjs(item.broadcastedAt).unix() <= now && dayjs(item.broadcastedLastTimeAt).unix() > now;
+
+    let broadcast = (schedule.broadcasts || []).find(function (item) {
+      return inRange(item.startTime, item.endTime);
     });
-    let musicTitle = {};
-    if (broadcastTwo) {
-      musicTitle = {
-        title: broadcastTwo.title,
-        artist: broadcastTwo.artists,
-        startTime: dayjs(broadcastTwo.broadcastedAt).unix(),
-        endTime: dayjs(broadcastTwo.broadcastedLastTime).unix(),
-      };
-    }
-    //let nextTitleStartTime = self.findNextBroadcastingStartTime(found.musicTracks);
-    let broadcastThree = found.musicTracks.find(function(item) {
-      return dayjs(item.broadcastedAt).unix() >= now;
+    if (!broadcast) { return {}; }
+
+    // Program level (host show); overridden below by the current music track.
+    let scraped = {
+      title: broadcast.title,
+      artist: broadcast.hosts,
+      cover: buildCover(broadcast.picture),
+      startTime: dayjs(broadcast.startTime).unix(),
+      endTime: dayjs(broadcast.endTime).unix(),
+    };
+
+    let musics = broadcast.musics || [];
+    let music = musics.find(function (item) {
+      return inRange(item.startTime, item.endTime);
     });
-    let nextTitleStartTime = null;
-    if (broadcastThree) {
-      nextTitleStartTime = dayjs(broadcastThree.broadcastedAt).unix();
+    if (music) {
+      // Classical channel: the composer is the meaningful "artist".
+      scraped.title = music.title;
+      scraped.artist = music.composers || music.artists;
+      scraped.startTime = dayjs(music.startTime).unix();
+      scraped.endTime = dayjs(music.endTime).unix();
     }
-    let scraped = {...program, ...musicTitle, ...{endTime : Math.min(program.endTime,nextTitleStartTime)}};
+
+    // Refresh as soon as the next known track starts, if that comes sooner.
+    let nextMusic = musics.find(function (item) {
+      return dayjs(item.startTime).unix() >= now;
+    });
+    if (nextMusic) {
+      scraped.endTime = Math.min(scraped.endTime, dayjs(nextMusic.startTime).unix());
+    }
+
     return scraped;
-  }
-
-  findBroadcastingProgram(broadcasts) {
-    let now = dayjs().unix();
-    let broadcast = broadcasts.find(function(item) {
-      return dayjs(item.startsAt).unix() <= now && dayjs(item.endsAt).unix() > now;
-    });
-    if (!broadcast) {return {};}
-    return {
-      title: broadcast.title,
-      artist: broadcast.credits,
-      cover: broadcast.picture.url.replace('{1}','1x1').replace('{0}','400'),
-      startTime: dayjs(broadcast.startsAt).unix(),
-      endTime: dayjs(broadcast.endsAt).unix(),
-    }
-  }
-
-  findBroadcastingTitle(broadcasts) {
-    let now = dayjs().unix();
-    let broadcast = broadcasts.find(function(item) {
-      return dayjs(item.broadcastedAt).unix() <= now && dayjs(item.broadcastedLastTimeAt).unix() > now;
-    });
-    if (!broadcast) {return {};}
-    return {
-      title: broadcast.title,
-      artist: broadcast.artists,
-      startTime: dayjs(broadcast.broadcastedAt).unix(),
-      endTime: dayjs(broadcast.broadcastedLastTime).unix(),
-    };
-  }
-
-  findNextBroadcastingStartTime(broadcasts) {
-    let now = dayjs().unix();
-    let broadcast = broadcasts.find(function(item) {
-      return dayjs(item.broadcastedAt).unix() >= now;
-    });
-    if (!broadcast) {return null;}
-    return dayjs(broadcast.broadcastedAt).unix();
   }
 
 }
