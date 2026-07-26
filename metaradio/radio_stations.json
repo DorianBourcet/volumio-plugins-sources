@@ -520,6 +520,17 @@
         "api": "https://www.tsfjazz.com/player/qect",
         "scraper": "tsf_jazz"
       }
+    ],
+    "wdcb": [
+      {
+        "title": "WDCB",
+        "uri": "webwdcb/000",
+        "url": "https://wdcb-ice.streamguys1.com/mobile-AAC",
+        "logo": "wdcb.png",
+        "method": "GET",
+        "api": "https://spinitron.com/WDCB/",
+        "scraper": "wdcb"
+      }
     ]
   }
 }
