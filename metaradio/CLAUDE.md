@@ -155,6 +155,16 @@ the fingerprint so Volumio advances the progress bar itself between actual track
   promise.
 - `setPlayingTrackInfo()` resets `askedForPrefetch` / `prefetchDone` / `simulateStopStartDone` on the
   state machine — without this Volumio's prefetch logic fights the metadata updates.
+- **Never assign `stateMachine.playbackStart`.** It is not the track start time: Volumio's
+  `increasePlaybackTimer` does `currentSeek += now - playbackStart` and then re-stamps it from
+  `Date.now()` every ~250ms, so it is a rolling delta anchor. Any track-start epoch written there is
+  added wholesale to `currentSeek` on the next tick and never unwinds — measured on-device as a
+  +74s jump every 5s, surfacing as a wrong "elapsed time" as soon as anything else pushes state
+  (`updateVolume` calls `pushState()`, which is why nudging the volume exposed it). Assigning
+  `currentSeek` is the supported way to declare a position; `syncState` does exactly that.
+- Anything written into the state machine belongs to Volumio, so check how Volumio itself maintains
+  the field before writing it. `currentSongDuration` is the other trap: Volumio keeps it in
+  milliseconds while `queueItem.duration` / `vState.duration` are in seconds.
 - `setPlayingTrackInfo()` and `resetPlayingTrack()` bail out when `getState()` reports another
   `service`, or when the queue item at `vState.position` is gone (queue cleared mid-playback) —
   indexing it blindly used to throw and take the polling loop down with it.

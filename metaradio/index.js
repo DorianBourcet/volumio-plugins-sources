@@ -589,10 +589,15 @@ ControllerMetaradio.prototype.computeScrapingFailureDtr = function () {
 
 ControllerMetaradio.prototype.setPlayingTrackInfo = function (title, cover, artist = null, album = null, startTime=null, endTime=null) {
 	var self = this;
+	// Never assign stateMachine.playbackStart. Despite the name it is not the track start
+	// time but Volumio's rolling delta anchor: increasePlaybackTimer does
+	// `currentSeek += now - playbackStart` and re-stamps it every ~250ms. Writing a track
+	// start epoch there makes the very next tick add the whole elapsed-since-track-start
+	// to currentSeek in one jump that never unwinds — visible as a wrong "elapsed time"
+	// the moment anything else pushes state (a volume change, for one). Assigning
+	// currentSeek below is the supported way to say where we are; syncState does the same.
 	if (startTime) {
 		var seek = Date.now() - startTime * 1000;
-		// Volumio seeds playbackStart from Date.now(), i.e. milliseconds.
-		self.commandRouter.stateMachine.playbackStart = startTime * 1000;
 		if (endTime) {
 			var duration = endTime - startTime;
 		}
@@ -626,6 +631,11 @@ ControllerMetaradio.prototype.setPlayingTrackInfo = function (title, cover, arti
 	}
 	vState.disableUiControls = true;
 
+	// `duration` is in seconds, which is right for vState/queueItem. currentSongDuration is
+	// the one Volumio keeps in milliseconds (startPlaybackTimer does `duration * 1000`), so
+	// the seconds value written here deliberately leaves its `remainingTime` negative and
+	// the prefetch / end-of-track transition inert — a webradio must never be auto-advanced.
+	// Do not "fix" this to milliseconds without re-checking increasePlaybackTimer.
 	if (duration) {
 		vState.duration = duration;
 		queueItem.duration = duration;
