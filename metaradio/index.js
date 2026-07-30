@@ -2,13 +2,9 @@
 
 var libQ = require('kew');
 var fs=require('fs-extra');
-const NanoTimer = require('nanotimer');
-var config = new (require('v-conf'))();
-var exec = require('child_process').exec;
-var execSync = require('child_process').execSync;
-var test = require('./helpers/foo');
 var Timer = require('./helpers/timer');
 var Cache = require('./helpers/cache');
+var debug = require('./helpers/debug');
 var hash = require('object-hash');
 
 const MIN_DELAY_TO_REFRESH = 20;
@@ -28,12 +24,14 @@ function ControllerMetaradio(context) {
 	self.serviceName = 'metaradio';
 	self.timer = null;
 	self.scraper = null;
-	self.latestTitleInfo = null;
-	self.titleInfoAttempt = 0;
   	self.currentStation = {};
 	self.cache = new Cache();
-	self.computedStartTimes = {};
 	self.scrapingFailureCount = 0;
+	// Bumped on every play/stop. A scrape captures it before going out and drops its
+	// result if it no longer matches, so an answer that lands after a station change
+	// cannot push the previous station's metadata onto the new one.
+	self.playGeneration = 0;
+	self.latestPushFingerprint = null;
 }
 
 ControllerMetaradio.prototype.onVolumioStart = function()
@@ -65,10 +63,13 @@ ControllerMetaradio.prototype.onStart = function() {
 
 ControllerMetaradio.prototype.onStop = function() {
     var self = this;
-    var defer=libQ.defer();
 
-    // Once the Plugin has successfull stopped resolve the promise
-    defer.resolve();
+    // Without this the polling loop outlives the plugin: it keeps hitting the APIs and
+    // mutating Volumio's state machine, and holds the whole controller in memory.
+    self.newPlayGeneration();
+    self.stopPolling();
+    self.cache.clear();
+    self.currentStation = {};
 
     return libQ.resolve();
 };
@@ -76,6 +77,46 @@ ControllerMetaradio.prototype.onStop = function() {
 ControllerMetaradio.prototype.onRestart = function() {
     var self = this;
     // Optional, use if you need it
+};
+
+// Invalidates every in-flight scrape and any timer that is still holding a reference to
+// the previous play cycle.
+ControllerMetaradio.prototype.newPlayGeneration = function() {
+	var self = this;
+	self.playGeneration++;
+	self.latestPushFingerprint = null;
+	return self.playGeneration;
+};
+
+ControllerMetaradio.prototype.stopPolling = function() {
+	var self = this;
+	if (self.timer) {
+		self.timer.stop();
+	}
+	self.timer = null;
+	self.scraper = null;
+};
+
+// Single entry point for (re)arming the metadata loop, so the timer and the scraper are
+// always created together and always for the station that is actually playing.
+ControllerMetaradio.prototype.startPolling = function() {
+	var self = this;
+
+	self.stopPolling();
+
+	if (!self.currentStation.scraper) {
+		self.setPlayingTrackInfo(
+			self.currentStation.name,
+			self.currentStation.albumart,
+			null,
+			null,
+		);
+		return;
+	}
+
+	self.scraper = new (require(__dirname + '/scrapers/' + self.currentStation.scraper))();
+	self.timer = new Timer(self.setMetadata.bind(self), function(result) {return result*1000;}, 0);
+	self.timer.start();
 };
 
 
@@ -86,7 +127,6 @@ ControllerMetaradio.prototype.getUIConfig = function() {
     var self = this;
 
     var lang_code = this.commandRouter.sharedVars.get('language_code');
-		console.log('WOW language is '+lang_code);
 
     self.commandRouter.i18nJson(__dirname+'/i18n/strings_'+lang_code+'.json',
         __dirname+'/i18n/strings_en.json',
@@ -147,16 +187,15 @@ ControllerMetaradio.prototype.addToBrowseSources = function () {
 
 ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
     var self = this;
-    var response;
 
-		if (curUri.startsWith(self.serviceName)) {
-			response = self.getRadioContent();
+		if (!curUri.startsWith(self.serviceName)) {
+			return libQ.reject(new Error('metaradio: cannot browse ' + curUri));
 		}
 
-    return response
+    return self.getRadioContent()
 			.fail(function (e) {
-				self.logger.info('[' + Date.now() + '] ' + '[RadioParadise] handleBrowseUri failed');
-				libQ.reject(new Error());
+				self.logger.error('metaradio: handleBrowseUri failed for ' + curUri + ' — ' + (e && e.message));
+				return libQ.reject(e);
 		});
 };
 
@@ -165,17 +204,16 @@ ControllerMetaradio.prototype.handleBrowseUri = function (curUri) {
 // Define a method to clear, add, and play an array of tracks
 ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 	var self = this;
-	console.log('CLEAR_ADD_PLAYTRACK',JSON.stringify(track))
-	/*if (Object.entries(self.currentStation).length > 0) {
-		self.resetPlayingTrack();
-	}*/
+	debug.debugLog('CLEAR_ADD_PLAYTRACK',JSON.stringify(track))
+
+	// Claimed before the MPD round-trips below, and re-checked once they resolve. Two
+	// overlapping calls (fast zapping) used to each install their own Timer, and only the
+	// last one stayed reachable — the earlier one polled on forever, unstoppable.
+	var generation = self.newPlayGeneration();
+	self.stopPolling();
   self.currentStation = {...track};
 
-	if (self.timer) {
-		self.timer.stop();
-	}
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::clearAddPlayTrack');
-	self.commandRouter.logger.info(JSON.stringify(track));
 
 	return self.mpdPlugin.sendMpdCommand('stop', [])
 		.then(function () {
@@ -193,7 +231,9 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 			return self.mpdPlugin.getState().then(function (state) {
 				var vState = self.commandRouter.stateMachine.getState();
 				var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
-				queueItem.name = track.name;
+				if (queueItem) {
+					queueItem.name = track.name;
+				}
 				//queueItem.trackType = track.name;
 				//vState.trackType = track.name;
 				/*queueItem.bitrate = state.bitrate;
@@ -204,22 +244,15 @@ ControllerMetaradio.prototype.clearAddPlayTrack = function(track) {
 			});
 		})
 		.then(function () {
-			if (track.scraper) {
-				self.scraper = new (require(__dirname + '/scrapers/' + track.scraper))();
-				self.timer = new Timer(self.setMetadata.bind(self), function(result) {return result*1000;}, 0);
-				self.timer.start();
-			} else {
-				self.setPlayingTrackInfo(
-					self.currentStation.name,
-					self.currentStation.albumart,
-					null,
-					null,
-				);
+			if (generation !== self.playGeneration) {
+				// A newer play took over while MPD was starting: it owns the timer now.
+				return;
 			}
-	
+			self.startPolling();
 		})
 		.fail(function (e) {
-			return libQ.reject(new Error());
+			self.logger.error('metaradio: clearAddPlayTrack failed for ' + track.name + ' — ' + (e && e.message));
+			return libQ.reject(e);
 		});
 };
 
@@ -233,48 +266,43 @@ ControllerMetaradio.prototype.seek = function (timepos) {
 ControllerMetaradio.prototype.stop = function() {
 	var self = this;
 
-	if (self.timer) {
-		self.timer.stop();
-	}
+	self.newPlayGeneration();
+	self.stopPolling();
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::stop');
 
 	return self.mpdPlugin.sendMpdCommand('stop', [])
-	.then(self.resetPlayingTrack())
+	.then(function () {
+		return self.resetPlayingTrack();
+	})
 	.then(function () {
 		return self.mpdPlugin.getState().then(function (state) {
 			return self.commandRouter.servicePushState(state, self.serviceName);
 		});
 	})
-	/*return self.mpdPlugin.stop().then(function () {
-		return self.mpdPlugin.getState().then(function (state) {
-				return self.commandRouter.stateMachine.syncState(state, self.serviceName);
-		});
-  });*/
+	.fail(function (e) {
+		self.logger.error('metaradio: stop failed — ' + (e && e.message));
+		return libQ.reject(e);
+	});
 };
 
 // Pause
+// Webradio has nothing meaningful to pause, so this is a full stop.
 ControllerMetaradio.prototype.pause = function() {
 	var self = this;
-	self.stop();
-	return;
-
-	if (self.timer) {
-		self.timer.stop();
-	}
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::pause');
-	return self.mpdPlugin.sendMpdCommand('pause', [1])
-    .then(self.resetPlayingTrack());
+	return self.stop();
 };
 
 // Resume
 ControllerMetaradio.prototype.resume = function () {
 	var self = this;
 
-	if (self.timer) {
-		self.timer.start();
-	}
+	// A fresh cycle: the previous one was torn down by pause()/stop(). startPolling()
+	// below rebuilds the timer and the scraper, so restarting a stale timer here (which
+	// could belong to a station that is no longer the current one) is not an option.
+	var generation = self.newPlayGeneration();
 	self.commandRouter.pushConsoleMessage('[' + Date.now() + '] ' + 'metaradio::resume');
-	self.commandRouter.logger.info(JSON.stringify(self.currentStation));
+	debug.debugLog('RESUME', JSON.stringify(self.currentStation));
 
 	return self.mpdPlugin.sendMpdCommand('play', [])
 		.then(function () {
@@ -283,21 +311,14 @@ ControllerMetaradio.prototype.resume = function () {
 			});
 		})
 		.then(function () {
-			if (self.currentStation.scraper) {
-				self.scraper = new (require(__dirname + '/scrapers/' + self.currentStation.scraper))();
-				self.setMetadata();
-			} else {
-				self.setPlayingTrackInfo(
-					self.currentStation.name,
-					self.currentStation.albumart,
-					null,
-					null,
-				);
+			if (generation !== self.playGeneration) {
+				return;
 			}
-	
+			self.startPolling();
 		})
 		.fail(function (e) {
-			return libQ.reject(new Error());
+			self.logger.error('metaradio: resume failed — ' + (e && e.message));
+			return libQ.reject(e);
 		});
 };
 
@@ -338,8 +359,7 @@ ControllerMetaradio.prototype.explodeUri = function(uri) {
 		for (const group in self.radioStations) {
 			station = self.radioStations[group].find(item => item.url === uri);
 			if (station) {
-				console.debug('found station');
-				console.debug(station);
+				debug.debugLog('EXPLODE_URI found station', station.title);
 				break;
 			}
 		}
@@ -357,11 +377,11 @@ ControllerMetaradio.prototype.explodeUri = function(uri) {
 		return defer.promise;
 	}
 
-	if (self.timer) {
-		self.timer.stop();
-	}
+	// No timer teardown here: Volumio also calls explodeUri to merely resolve a URI (queue
+	// append, browse), and stopping the timer froze the metadata of the station playing.
+	// clearAddPlayTrack owns that transition.
 	//let id = self.radioStations[station][channel].uri.replace(/[^a-zA-Z0-9]/g, '');
-	
+
 	response.push({
 		service: self.serviceName,
 		type: 'track',
@@ -427,9 +447,10 @@ ControllerMetaradio.prototype.addRadioResource = function() {
 
 ControllerMetaradio.prototype.getRadioContent = function() {
   var self = this;
-  var response;
 
-  response = self.rootNavigation;
+  // Fresh copy per call: returning the shared rootNavigation meant concurrent browses
+  // handed out the same mutable object, and it stayed loaded with the full station list.
+  var response = JSON.parse(JSON.stringify(self.rootNavigation));
 	var items = [];
 	for (var station in self.radioStations) {
 		for (var channel of self.radioStations[station]) {
@@ -465,33 +486,28 @@ ControllerMetaradio.prototype.getRadioI18nString = function (key) {
 		return self.i18nStringsDefaults[key];
 };
 
-ControllerMetaradio.prototype.hydrateMetadata = function (scraped) {
+// `station` is the snapshot the scrape was issued for, not self.currentStation: reading
+// the live field here meant a late answer got the *next* station's name and logo as its
+// fallbacks, and that pair was then cached under the previous station's key.
+ControllerMetaradio.prototype.hydrateMetadata = function (scraped, station) {
 	var self = this;
 
 	let now = Math.floor(Date.now() / 1000);
 	let metadata = {...scraped};
 	let extraDelay = 5;
 
-	// if (metadata.startTime === undefined || metadata.startTime === null || metadata.startTime > now) {
-	// 	metadata.startTime = self.computeStartTime(metadata);
-	// }
-	// if (JSON.stringify(scraped) === '{}') {
-	// 	metadata.endTime = now + 300;
-	// }
-	// if (metadata.endTime === undefined || metadata.endTime === null || metadata.endTime < now) {
-	// 	metadata.endTime = self.computeEndTime(metadata);
-	// 	extraDelay = 0;
-	// }
 	if (metadata.title === undefined || metadata.title === null || metadata.title === false) {
-		metadata.title = self.currentStation.name;
-		metadata.artist = self.currentStation.name;
+		metadata.title = station.name;
+		metadata.artist = station.name;
 		metadata.album = null;
-		metadata.cover = self.currentStation.albumart;
+		metadata.cover = station.albumart;
 	}
 	else if (metadata.cover === undefined || metadata.cover === null || metadata.cover === false) {
-		metadata.cover = self.currentStation.albumart;
+		metadata.cover = station.albumart;
 	}
-	if (metadata.delayToRefresh === undefined || metadata.delayToRefresh === null || metadata.delayToRefresh < MIN_DELAY_TO_REFRESH) {
+	// Number.isFinite also rejects NaN, which would otherwise reach the cache as a ttl and
+	// make the entry immortal.
+	if (!Number.isFinite(metadata.delayToRefresh) || metadata.delayToRefresh < MIN_DELAY_TO_REFRESH) {
 		if (metadata.endTime > now) {
 			metadata.delayToRefresh = Math.max(metadata.endTime - now + extraDelay,MIN_DELAY_TO_REFRESH);
 		} else {
@@ -503,83 +519,50 @@ ControllerMetaradio.prototype.hydrateMetadata = function (scraped) {
 	return metadata;
 }
 
-ControllerMetaradio.prototype.computeStartTime = function (metadata) {
-	var self = this;
-
-	let key = hash(metadata);
-  if (self.computedStartTimes[self.currentStation.name] === undefined
-	|| self.computedStartTimes[self.currentStation.name][key] === undefined) {
-		let now = Math.floor(Date.now() / 1000);
-		self.computedStartTimes = {...self.computedStartTimes, ...{[self.currentStation.name]: {[key]: now}}};
-	}
-	return self.computedStartTimes[self.currentStation.name][key];
+// Keyed on the stream URL, which explodeUri maps onto `uri`.
+ControllerMetaradio.prototype.cacheKeyFor = function (station) {
+	return String(station.uri).replace(/[^a-zA-Z0-9]/g, '');
 }
 
-ControllerMetaradio.prototype.computeEndTime = function (metadata) {
-	var self = this;
-
-	var titleInfo = [metadata.title, metadata.artist].join('-');
-	var now = Math.floor(Date.now() / 1000);
-	if (titleInfo !== self.latestTitleInfo) {
-		self.latestTitleInfo = titleInfo;
-		self.titleInfoAttempt = 0;
-	}
-	self.titleInfoAttempt++;
-	if (self.titleInfoAttempt >= 20) {
-		return now + 85;
-	}
-	if (self.titleInfoAttempt >= 10) {
-		return now + 55;
-	}
-	if (self.titleInfoAttempt >= 5) {
-		return now + 40;
-	}
-	if (self.titleInfoAttempt == 2) {
-		return now + 60;
-	}
-	if (self.titleInfoAttempt == 1) {
-		return now + 30;
-	}
-	var seek = now - metadata.startTime;
-	if (seek < 90) {return now + 90 - seek;}
-	return now + 25;
-}
-
-ControllerMetaradio.prototype.getMetadata = function () {
+ControllerMetaradio.prototype.getMetadata = function (station) {
 	var self = this;
 	var defer = libQ.defer();
-	let key = self.currentStation.uri.replace(/[^a-zA-Z0-9]/g, '');
+	let key = self.cacheKeyFor(station);
 	let cachedMetadata = self.cache.get(key);
-	if (cachedMetadata === undefined) {
-		self.scraper.getMetadata(self.currentStation.api, self.currentStation.method)
-			.then(function (result) {
-				self.scrapingFailureCount = 0;
-				console.log('SCRAPED METADATA',result);
-				result = self.hydrateMetadata(result);
-				console.log('HYDRATED METADATA',result);
-				self.cache.set(key, result, result.delayToRefresh);
-
-				defer.resolve(result);
-			})
-			.fail(function (e) {
-				console.log('FAILED SCRAPING METADATA',e);
-				self.cache.set(key, self.getCurrentStationMetadata(), self.computeScrapingFailureDtr());
-				defer.resolve(result);
-			});
-	} else {
+	if (cachedMetadata !== undefined) {
 		defer.resolve(cachedMetadata);
+		return defer.promise;
 	}
+
+	self.scraper.getMetadata(station.api, station.method)
+		.then(function (result) {
+			self.scrapingFailureCount = 0;
+			debug.debugLog('SCRAPED METADATA',result);
+			result = self.hydrateMetadata(result, station);
+			debug.debugLog('HYDRATED METADATA',result);
+			self.cache.set(key, result, result.delayToRefresh);
+
+			defer.resolve(result);
+		})
+		.fail(function (e) {
+			// Resolves rather than rejects: a dead API degrades to the station name instead
+			// of breaking playback. The placeholder is cached for the backoff duration so
+			// the endpoint stops being hit every minute.
+			self.logger.error('metaradio: scraping failed for ' + station.name + ' — ' + (e && e.message ? e.message : e));
+			let placeholder = self.getStationMetadata(station);
+			self.cache.set(key, placeholder, self.computeScrapingFailureDtr());
+			defer.resolve(placeholder);
+		});
 
 	return defer.promise;
 }
 
-ControllerMetaradio.prototype.getCurrentStationMetadata = function () {
-	var self = this;
+ControllerMetaradio.prototype.getStationMetadata = function (station) {
 	return {
-		title: self.currentStation.name,
-		artist: self.currentStation.name,
+		title: station.name,
+		artist: station.name,
 		album: null,
-		cover: self.currentStation.albumart,
+		cover: station.albumart,
 	};
 }
 
@@ -608,14 +591,32 @@ ControllerMetaradio.prototype.setPlayingTrackInfo = function (title, cover, arti
 	var self = this;
 	if (startTime) {
 		var seek = Date.now() - startTime * 1000;
-		self.commandRouter.stateMachine.playbackStart = startTime;
+		// Volumio seeds playbackStart from Date.now(), i.e. milliseconds.
+		self.commandRouter.stateMachine.playbackStart = startTime * 1000;
 		if (endTime) {
 			var duration = endTime - startTime;
 		}
 	}
-	
+
 	var vState = self.commandRouter.stateMachine.getState();
+	if (!vState) { return; }
+	// Only bail when another service demonstrably owns playback, so an unset `service`
+	// (which happens early in a transition) still gets its metadata.
+	if (vState.service && vState.service !== self.serviceName) {
+		debug.debugLog('SKIP_PUSH: active service is', vState.service);
+		return;
+	}
 	var queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
+	if (!queueItem) { return; }
+
+	// The loop ticks every 5s while the cache holds the same answer for 20s to 900s.
+	// Pushing regardless rewrote vState and zeroed currentSeek each time, which both
+	// spammed every socket.io client and kept the progress bar from advancing. `seek` is
+	// deliberately out of the fingerprint: Volumio moves it on its own between changes.
+	var fingerprint = hash({title, cover, artist, album, duration, startTime});
+	if (fingerprint === self.latestPushFingerprint) { return; }
+	self.latestPushFingerprint = fingerprint;
+
 	if (seek) {
 		vState.seek = seek;
 		self.commandRouter.stateMachine.currentSeek = seek;  // reset Volumio timer
@@ -657,11 +658,19 @@ ControllerMetaradio.prototype.setPlayingTrackInfo = function (title, cover, arti
 
 ControllerMetaradio.prototype.setMetadata = function () {
 	var self = this;
-	return self.getMetadata()
+	// Snapshot both, so a scrape that outlives its play cycle neither pushes nor hydrates
+	// against whatever station has taken over in the meantime.
+	var generation = self.playGeneration;
+	var station = self.currentStation;
+
+	return self.getMetadata(station)
 		.then(function (result) {
+			if (generation !== self.playGeneration) {
+				return 5;
+			}
 			var now = Math.floor(Date.now() / 1000);
 			if (result.endTime && now >= result.endTime) {
-				result = self.getCurrentStationMetadata();
+				result = self.getStationMetadata(station);
 			}
 			self.setPlayingTrackInfo(
 				result.title,
@@ -678,7 +687,11 @@ ControllerMetaradio.prototype.setMetadata = function () {
 ControllerMetaradio.prototype.resetPlayingTrack = function () {
 	let self = this;
 	let vState = self.commandRouter.stateMachine.getState();
+	if (!vState) { return; }
+	if (vState.service && vState.service !== self.serviceName) { return; }
 	let queueItem = self.commandRouter.stateMachine.playQueue.arrayQueue[vState.position];
+	if (!queueItem) { return; }
+	self.latestPushFingerprint = null;
 	vState.seek = 0;
 	vState.disableUiControls = true;
 

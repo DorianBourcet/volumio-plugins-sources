@@ -18,7 +18,9 @@ class RadioFranceMusiqueInterScraper extends BaseScraper {
     let [startTime] = jp.query(metadata, '$.now.startTime');
     let [endTime] = jp.query(metadata, '$.now.endTime');
     // let [delayToRefresh] = jp.query(metadata, '$.delayToRefresh');
-    if (year) {
+    // Guard on `album` too: a song can carry a year without a title, and concatenating
+    // then produced the literal "undefined (1975)".
+    if (album && year) {
       album = album + ' (' + year + ')';
     }
     if (startTime) {

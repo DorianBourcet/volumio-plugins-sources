@@ -20,7 +20,11 @@ class RCIciMusiqueScraper extends BaseScraper {
     let program = {
       title: broadcast.title,
       artist: broadcast.credits,
-      cover: broadcast.picture.url.replace('{1}','1x1').replace('{0}','400'),
+      // A broadcast without a picture used to throw here, and base swallowed it, so the
+      // station silently fell back to its own name although the title was available.
+      cover: broadcast.picture && broadcast.picture.url
+        ? broadcast.picture.url.replace('{1}','1x1').replace('{0}','400')
+        : undefined,
       startTime: dayjs(broadcast.startsAt).unix(),
       endTime: dayjs(broadcast.endsAt).unix(),
     };
@@ -34,7 +38,7 @@ class RCIciMusiqueScraper extends BaseScraper {
         title: broadcastTwo.title,
         artist: broadcastTwo.artists,
         startTime: dayjs(broadcastTwo.broadcastedAt).unix(),
-        endTime: dayjs(broadcastTwo.broadcastedLastTime).unix(),
+        endTime: dayjs(broadcastTwo.broadcastedLastTimeAt).unix(),
       };
     }
     let broadcastThree = musicTracks.find(function(item) {

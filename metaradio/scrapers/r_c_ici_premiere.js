@@ -22,7 +22,9 @@ class RCIciPremiereScraper extends BaseScraper {
     var [title] = jp.query(broadcast, '$.title');
     var [artist] = jp.query(broadcast, '$.credits');
     var [cover] = jp.query(broadcast, '$.picture.url');
-    cover = cover.replace('{1}','1x1').replace('{0}','400');
+    // A broadcast without a picture used to throw here, and base swallowed it, so the
+    // station silently fell back to its own name although the title was available.
+    cover = cover ? cover.replace('{1}','1x1').replace('{0}','400') : undefined;
     var [startTime] = jp.query(broadcast, '$.startsAt');
     startTime = dayjs(startTime).unix();
     var [endTime] = jp.query(broadcast, '$.endsAt');

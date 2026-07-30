@@ -27,7 +27,9 @@ class RadioFranceScraper extends BaseScraper {
     if (endTime) {
       endTime = endTime + 7;
     }
-    if (year) {
+    // Guard on `album` too: a song can carry a year without a release title, and
+    // concatenating then produced the literal "undefined (1975)".
+    if (album && year) {
       album = album + ' (' + year + ')';
     }
     // if (delayToRefresh) {

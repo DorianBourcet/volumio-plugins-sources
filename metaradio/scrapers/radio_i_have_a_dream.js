@@ -9,15 +9,20 @@ class RadioIHaveADreamScraper extends BaseScraper {
     const metadata = JSON.parse(response);
     var regex = /^-*([A-Z -.]+)-(.+)$/;
     var [info] = jp.query(metadata, '$.0.2');
+    if (!info) {
+      return {};
+    }
+    // No match at all is the common case for jingles and announcements: show the raw
+    // line rather than throwing on a null match.
     var matches = info.match(regex);
-    if (matches.length === 3) {
+    if (!matches) {
       return {
-        artist: matches[1],
-        title: matches[2],
+        title: info.trim() || undefined,
       };
     }
     return {
-      title: matches[0],
+      artist: matches[1].trim() || undefined,
+      title: matches[2].trim() || undefined,
     };
   }
 

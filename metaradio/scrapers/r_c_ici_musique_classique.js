@@ -18,6 +18,16 @@ function buildCover(picture) {
 
 class RCIciMusiqueClassiqueScraper extends BaseScraper {
 
+  // The GraphQL endpoint answers 400 to a header-less GET, calling it a potential CSRF;
+  // any content-type outside the form/text-plain set satisfies it. Until base propagated
+  // failures this surfaced as a permanently empty station rather than an error.
+  _fetchMetadata(url, method) {
+    return this._httpRequest(url, {
+      method: method,
+      headers: {'User-Agent': 'Mozilla/5.0', 'Content-Type': 'application/json'},
+    });
+  }
+
   _scrapeMetadata(response) {
     const data = JSON.parse(response);
     const schedules = data && data.data && data.data.liveSchedules
