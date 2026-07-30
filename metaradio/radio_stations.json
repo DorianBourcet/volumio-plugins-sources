@@ -531,6 +531,17 @@
         "api": "https://spinitron.com/WDCB/",
         "scraper": "wdcb"
       }
+    ],
+    "lemellotron": [
+      {
+        "title": "Le Mellotron",
+        "uri": "weblemellotron/000",
+        "url": "https://listen.radioking.com/radio/477719/stream/534044",
+        "logo": "le_mellotron.png",
+        "method": "GET",
+        "api": "https://api.radioking.io/widget/radio/lemellotron-stream/track/current",
+        "scraper": "le_mellotron"
+      }
     ]
   }
 }
